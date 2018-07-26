@@ -18,66 +18,62 @@
 <#
 .SYNOPSIS
 
-This example configuration covers a basic implementation of Windows Integrated
-Security for the PI Data Archive.
+This example configuration covers a basic implementation of role-based access
+control for the PI Data Archive.
 
 .DESCRIPTION
 
 This configuration is meant to configure a new install of a PI Data Archive to
-use the standard WIS implementation as documented in the Field Service Technical
-Standard in KB01702.
+use a standard implementation of Windows Integrated Security in the PI Data
+Archive similat to the implementation documented in the Field Service Technical
+Standard (KB01702).
 
 .EXAMPLE
 
-.\PIDataArchive_RBAC -NodeName "myPI" -PIAdministratorsADGroup 'mydomain\PI Admins' -PIUsersADGroup 'mydomain\PI Users'
+.\PIDataArchive_RBAC -NodeName "myPI" -PIAdministratorsPrincipals 'mydomain\PI Admins' -PIUsersPrincipals @('mydomain\Site A PI Users', 'mydomain\Site B PI Users')
 
 .PARAMETER NodeName
 
 Name of the PI Data Archive server.
 
-.PARAMETER PIAdministratorsADGroup
+.PARAMETER PIAdministratorsPrincipals
 
-Windows identity to associate with an administrative role in PI.  Ideally, this
-should be a group.
+Windows identities to associate with an administrative role in PI.  Ideally, this
+should be a single AD group.
 
-.PARAMETER PIUsersADGroup
+.PARAMETER PIUsersPrincipals
 
-Windows identity to associate with a read only user role in PI.  Ideally, this
-should be a group.
+Windows identities to associate with a read only user role in PI.  Ideally, this
+should be a single AD group.
 
-.PARAMETER PIBuffersADGroup
+.PARAMETER PIBuffersPrincipals
 
-Windows identity to associate with instances of PI Buffer Subsystem.  Ideally, this
-should be a group.
+Windows identities to associate with instances of PI Buffer Subsystem.  Ideally, this
+should be a single AD group.
 
-.PARAMETER PIInterfacesADGroup
+.PARAMETER PIInterfacesPrincipals
 
-Windows identity to associate with PI Interfaces.  Ideally, this should be a group.
+Windows identities to associate with PI Interfaces.  Ideally, this should be a single AD group.
 
-.PARAMETER PIPointsAnalysisCreatorADGroup
+.PARAMETER PIPointsAnalysisCreatorPrincipals
 
-Windows identity to associate with a power user role in PI for those who need to
-create PI Points.  Ideally, this should be a group.
+Windows identities to associate with a power user role in PI for those who need to
+create PI Points.  Ideally, this should be a single AD group.
 
-.PARAMETER PIWebAppsADGroup
+.PARAMETER PIWebAppsPrincipals
 
-Windows identity to associate with PI Web Applications such as PI Vision.  Ideally,
-this should be a group.
+Windows identities to associate with PI Web Applications such as PI Vision.  Ideally,
+this should be a single AD group.
 
-.PARAMETER PIConnectorRelaysADGroup
+.PARAMETER PIConnectorRelaysPrincipals
 
-Windows identity to associate with PI Connector Relays.  Ideally,
-this should be a group.
+Windows identities to associate with PI Connector Relays.  Ideally,
+this should be a single AD group.
 
-.PARAMETER PIDataCollectionManagersADGroup
+.PARAMETER PIDataCollectionManagersPrincipals
 
-Windows identity to associate with PI Data Collection Managers.  Ideally,
-this should be a group.
-
-.PARAMETER DSCIdentity
-
-Windows identity that will be used to apply configurations. This will use system
-unless a PSCredential is specified in the configuration.
+Windows identities to associate with PI Data Collection Managers.  Ideally,
+this should be a single AD group.
 
 #>
 Configuration PIDataArchive_RBAC
@@ -86,32 +82,29 @@ Configuration PIDataArchive_RBAC
         [String]
         $NodeName = 'localhost',
 
-        [String]
-        $PIAdministratorsADGroup = 'BUILTIN\Administrators',
+        [String[]]
+        $PIAdministratorsPrincipals = @('BUILTIN\Administrators','NT Authority\System'),
 
-        [String]
-        $PIUsersADGroup = '\Everyone',
+        [String[]]
+        $PIUsersPrincipals = '\Everyone',
 
-        [String]
-        $PIBuffersADGroup = '',
+        [String[]]
+        $PIBuffersPrincipals = '',
 
-        [String]
-        $PIInterfacesADGroup = '',
+        [String[]]
+        $PIInterfacesPrincipals = '',
 
-        [String]
-        $PIPointsAnalysisCreatorADGroup = '',
+        [String[]]
+        $PIPointsAnalysisCreatorPrincipals = '',
 
-        [String]
-        $PIWebAppsADGroup = '',
+        [String[]]
+        $PIWebAppsPrincipals = '',
 
-        [String]
-        $PIConnectorRelaysADGroup = '',
+        [String[]]
+        $PIConnectorRelaysPrincipals = '',
 
-        [String]
-        $PIDataCollectionManagersADGroup = '',
-
-        [String]
-        $DSCIdentity = 'NT Authority\System',
+        [String[]]
+        $PIDataCollectionManagersPrincipals = '',
 
         [Boolean]
         $PIBatchRequired = $false,
@@ -143,10 +136,7 @@ Configuration PIDataArchive_RBAC
                             @{
                                 Name='piadmins'
                                 Description='Identity for administrative users of PI'
-                                Mappings=@(
-                                            $PIAdministratorsADGroup,
-                                            $DSCIdentity
-                                          )
+                                Mappings=$PIAdministratorsPrincipals
                                 DatabaseAccess = @{ ReadWrite=$PIDatabases }
                                 PointAccess = 'ReadWrite'
                                 DataAccess = 'ReadWrite'
@@ -154,7 +144,7 @@ Configuration PIDataArchive_RBAC
                             @{
                                 Name='PI Buffers'
                                 Description='Identity for PI Buffer Subsystem and PI Buffer Server'
-                                Mappings=$PIBuffersADGroup
+                                Mappings=$PIBuffersPrincipals
                                 DatabaseAccess = @{ ReadWrite='PIPOINT' }
                                 PointAccess = 'ReadWrite'
                                 DataAccess = 'ReadWrite'
@@ -170,7 +160,7 @@ Configuration PIDataArchive_RBAC
                             @{
                                 Name='PI Users'
                                 Description='Identity for the Read-only users'
-                                Mappings=$PIUsersADGroup
+                                Mappings=$PIUsersPrincipals
                                 DatabaseAccess = @{ Read=@('PIDBSEC','PIPOINT','PIUSER','PIDS','PIModules','PIHeadingSets','PIBatch','PICampaign','PITransferRecords','PIBATCHLEGACY') }
                                 PointAccess = 'Read'
                                 DataAccess = 'Read'
@@ -178,7 +168,7 @@ Configuration PIDataArchive_RBAC
                             @{
                                 Name='PI Points and Analysis Creator'
                                 Description='Identity for PIACEService, PIAFService and users that can create and edit PI Points'
-                                Mappings=$PIPointsAnalysisCreatorADGroup
+                                Mappings=$PIPointsAnalysisCreatorPrincipals
                                 DatabaseAccess = @{ ReadWrite=@('PIPOINT','PIDS') }
                                 PointAccess = 'ReadWrite'
                                 DataAccess = 'ReadWrite'
@@ -186,7 +176,7 @@ Configuration PIDataArchive_RBAC
                             @{
                                 Name='PI Web Apps'
                                 Description='Identity for PI Vision, PI Web API, and PI Web API Crawler'
-                                Mappings=$PIWebAppsADGroup
+                                Mappings=$PIWebAppsPrincipals
                                 DatabaseAccess = @{ Read=@('PIDBSEC','PIPOINT','PIUSER','PIMAPPING') }
                                 PointAccess = 'Read'
                                 DataAccess = 'Read'
@@ -194,7 +184,7 @@ Configuration PIDataArchive_RBAC
                             @{
                                 Name='PI Connector Relays'
                                 Description='Identity for PI Connector Relays'
-                                Mappings=$PIConnectorRelaysADGroup
+                                Mappings=$PIConnectorRelaysPrincipals
                                 DatabaseAccess = @{ 
                                                     Read='PIUSER'
                                                     ReadWrite=@('PIPOINT','PIDS')
@@ -205,7 +195,7 @@ Configuration PIDataArchive_RBAC
                             @{
                                 Name='PI Data Collection Managers'
                                 Description='Identity for PI Data Collection Managers'
-                                Mappings=$PIDataCollectionManagersADGroup
+                                Mappings=$PIDataCollectionManagersPrincipals
                                 DatabaseAccess = @{ Read=@('PIDBSEC','PIDS','PIPOINT','PIREPLICATION','PIUSER') }
                                 PointAccess = 'Read'
                                 DataAccess = 'Read'
@@ -213,10 +203,13 @@ Configuration PIDataArchive_RBAC
                           )
         #endregion
 
+        #region Create PI Identities, create PI Mappings, and assign permissions 
         Foreach($Identity in $Identities)
         {
+            # Only process a role if there is a mappi; a role is useless without any mappings.
             if(![System.String]::IsNullOrEmpty($Identity.Mappings))
             {
+                # Create the role as a PI Identity
                 PIIdentity "Set_$($Identity.Name)"
                 {
                     Name = $($Identity.Name)
@@ -228,7 +221,7 @@ Configuration PIDataArchive_RBAC
                     Ensure = "Present"
                     PIDataArchive = $NodeName
                 }
-
+                # Create all the associated PI Mappings
                 Foreach($Mapping in $Identity.Mappings)
                 {
                     if(![System.String]::IsNullOrEmpty($Mapping))
@@ -245,7 +238,7 @@ Configuration PIDataArchive_RBAC
                         }
                     }
                 }
-
+                # Define the PI Database Security
                 Foreach($AccessLevel in $Identity.DatabaseAccess.GetEnumerator())
                 {
                     $DatabaseNames = $AccessLevel.Value
@@ -263,8 +256,7 @@ Configuration PIDataArchive_RBAC
                         }
                     }    
                 }
-
-                # Define security for default points
+                # Define security for default PI Points
                 Foreach($Point in $DefaultPIPoints)
                 {
                     PIAccessControl "$($Identity.Name)_PtSecurity_$Point"
@@ -289,10 +281,12 @@ Configuration PIDataArchive_RBAC
                 }
             }    
         }
+        #endregion
 
-        #region Clean up default PI Identities
+        #region Clean up default PI Identities 
         Foreach($Database in $PIDatabases)
         {
+            # Remove piadmin from the ACLs since it always has full access.
             PIAccessControl "piadmin_$Database"
             {
                 Name = $Database
@@ -300,7 +294,7 @@ Configuration PIDataArchive_RBAC
                 Ensure = "Absent"
                 Identity = "piadmin"
             }
-
+            # Remove PIWorld from ACLs since it is disabled in this configuration.
             PIAccessControl "PIWorld_$Database"
             {
                 Name = $Database
@@ -309,8 +303,8 @@ Configuration PIDataArchive_RBAC
                 Identity = "PIWorld"
             }
         }
+        # Delete the unused default identities
         $DefaultIdentitiesToDelete=@('PIOperators','PISupervisors','PIEngineers','pidemo')
-        $DefaultIdentitiesToDisable=@('PIWorld','piusers')
         Foreach($DefaultIdentity in $DefaultIdentitiesToDelete)
         {
             PIIdentity "Delete_$DefaultIdentity"
@@ -320,6 +314,8 @@ Configuration PIDataArchive_RBAC
                 PIDataArchive = $NodeName
             }
         }
+        # Disable PIWorld and piusers
+        $DefaultIdentitiesToDisable=@('PIWorld','piusers')
         Foreach($DefaultIdentity in $DefaultIdentitiesToDisable)
         {
             PIIdentity "Delete_$DefaultIdentity"
