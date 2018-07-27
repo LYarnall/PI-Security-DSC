@@ -4,7 +4,7 @@ For guidance on writing a DSC Configuration with resources from the PI Security 
 - [Writing a Configuration](https://github.com/osisoft/PI-Security-DSC/wiki/Writing-a-Configuration): Guidance on the structure and parameters of DSC Configurations.
 - [Resource Reference](https://github.com/osisoft/PI-Security-DSC/wiki/Resource-Reference): Syntax for all resources is available in the module.
 
-Since there are many ways to leverage DSC Resource in configurations, several example configurations are supplied in this folder.  The table below indicates the purposes for the example files.
+Since there are many ways to leverage DSC Resource in configurations, several example configurations are supplied in this folder.  The table below indicates the purposes for the example files.  
 | Name | Description |
 |---|---|
 |[Resource]_[Action]|Capture simple functionality such as adding, updating, and removing the specified resource|
