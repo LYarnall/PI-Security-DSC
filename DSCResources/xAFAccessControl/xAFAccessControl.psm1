@@ -395,10 +395,9 @@ function ConvertTo-CanonicalAFSecurityRight
         }
 
         $CanonicalAFSecurityRight = [OSIsoft.AF.AFSecurityRights]::None
-        $allAFSecurityRightValues = [OSIsoft.AF.AFSecurityRights].GetEnumValues()
         foreach($CanonicalString in $CanonicalStringArray)
         {
-            $CanonicalAFSecurityRight += $allAFSecurityRightValues | Where-Object { $_.ToString() -eq $CanonicalString }
+            $CanonicalAFSecurityRight += [OSIsoft.AF.AFSecurityRights]$CanonicalString
         }
     }
 
