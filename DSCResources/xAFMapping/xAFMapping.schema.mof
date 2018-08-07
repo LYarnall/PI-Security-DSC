@@ -20,7 +20,7 @@
 class xAFMapping : OMI_BaseResource
 {
     [Write, Description("Description")] String Description;
-    [Write, Description("AF Identity Name")] String AFIdentityName;
+    [Write, Description("AF Identity Name")] String Identity;
     [Required, Description("AF Server name for connection")] String AFServer;
     [Key, Description("unique name")] String Name;
     [Write, ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;

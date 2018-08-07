@@ -36,7 +36,7 @@ try
         $testAFServer = 'localhost'
         $defaultParameters = @{
                                 Description = "This is a mapping"
-                                AFIdentityName = "UnitTestIdentity"
+                                Identity = "UnitTestIdentity"
                                 AFServer = $testAFServer
                                 Name = "UnitTestMapping"
                                 Ensure = "Present"
@@ -48,7 +48,7 @@ try
                 InputParameters = $defaultParameters
                 MockValue = @{
                         Description = "This is a mapping"
-                        AFIdentityName = "UnitTestIdentity"
+                        Identity = "UnitTestIdentity"
                         AFServer = $testAFServer
                         Name = "UnitTestMapping"
                         Ensure = "Present"
@@ -80,7 +80,7 @@ try
                 InputParameters = $defaultParameters
                 MockValue = @{
                         Description = "Wrong description!!!"
-                        AFIdentityName = "UnitTestIdentity"
+                        Identity = "UnitTestIdentity"
                         AFServer = $testAFServer
                         Name = "UnitTestMapping"
                         Ensure = "Present"
@@ -115,7 +115,7 @@ try
             {
                 $MockAFMapping = New-Object PSCustomObject
                 $SecurityIdentity = New-Object PSCustomObject
-                $SecurityIdentity | Add-Member -MemberType NoteProperty -Name Name -Value $InputEntry.AFIdentityName -TypeName string
+                $SecurityIdentity | Add-Member -MemberType NoteProperty -Name Name -Value $InputEntry.Identity -TypeName string
                 $MockAFMapping | Add-Member -MemberType NoteProperty -Name SecurityIdentity -Value $SecurityIdentity
                 $MockAFMapping | Add-Member -MemberType NoteProperty -Name Description -Value $InputEntry.Description -TypeName string
                 $MockAFMapping | Add-Member -MemberType NoteProperty -Name Ensure -Value $InputEntry.Ensure -TypeName string
