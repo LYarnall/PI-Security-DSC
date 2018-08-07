@@ -31,7 +31,7 @@ try
         $TargetModule = 'xPIMapping'
         $TargetObject = 'PIMapping entry'
         $testPIDataArchive = 'localhost'
-        $defaultParameters = @{                 
+        $defaultParameters = @{
                                 PrincipalName = "Domain\UnitTestWindowsPrinciple"
                                 Description = "The correct description."
                                 Enabled = $true
@@ -145,7 +145,7 @@ try
         }
         $CommandNoun = "PIMappingDSC"
         Describe "$TargetModule\Get-TargetResource" {
-            
+
             $testCase = $testCases["DesiredState"]
             Context $testCase.Context {
                 Mock -CommandName "Get-$CommandNoun" {
@@ -153,7 +153,7 @@ try
                 }
 
                 $InputParameters = $testCase.InputParameters
-                
+
                 $result = Get-TargetResource -PIDataArchive $InputParameters.PIDataArchive -PrincipalName $InputParameters.PrincipalName
 
                 It 'Should return the same values passed' {
@@ -163,7 +163,7 @@ try
                     }
                 }
             }
-            
+
             $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
             foreach($AbsentCase in $AbsentCases)
             {
@@ -174,7 +174,7 @@ try
                     }
 
                     $InputParameters = $testCase.InputParameters
-                
+
                     $result = Get-TargetResource -PIDataArchive $InputParameters.PIDataArchive -PrincipalName $InputParameters.PrincipalName
 
                     It 'Should return Ensure as Absent' {
@@ -185,7 +185,7 @@ try
         }
 
         Describe "$TargetModule\Set-TargetResource" {
-            
+
             Mock -CommandName "Add-$CommandNoun" -Verifiable
             Mock -CommandName "Remove-$CommandNoun" -Verifiable
             Mock -CommandName "Set-$CommandNoun" -Verifiable
@@ -208,9 +208,9 @@ try
                 }
             }
         }
-        
+
         Describe "$TargetModule\Test-TargetResource" {
-            
+
             foreach($key in $testCases.Keys)
             {
                 $testCase = $testCases[$key]
@@ -224,7 +224,7 @@ try
                         $result = Test-TargetResource @InputParameters
                         $result | Should -be $testCase.Desired
                     }
-                } 
+                }
             }
         }
     }

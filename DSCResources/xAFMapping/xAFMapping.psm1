@@ -157,7 +157,7 @@ function Test-TargetResource
     Write-Verbose "Testing AF Mapping: '$Name'"
     $PIResource = Get-TargetResource -Name $Name -AFServer $AFServer -Verbose:$VerbosePreference
 
-    return (Compare-PIResourceGenericProperties -Desired $PSBoundParameters -Current $PIResource)
+    return (Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource)
 }
 
 function Get-NTAccount

@@ -27,7 +27,7 @@ function Invoke-TestCleanup
 # Begin Testing
 try
 {
-    
+
     Invoke-TestSetup
     $resultsFolder = Join-Path -Path (Split-Path -Path $PSScriptRoot) -ChildPath "Results"
     $startDscConfigurationParameters = @{
@@ -42,9 +42,9 @@ try
     . $configFile
 
     Describe "$script:DSCResourceName\Integration" {
-        
+
         $configurationName = "$($script:DSCResourceName)_Set"
-         
+
             Context "When using configuration $($configurationName) to set initial values" {
                 $OutputPath = Join-Path -Path $resultsFolder -ChildPath $configurationName
                 $configurationParameters = @{
@@ -66,8 +66,8 @@ try
                 }
 
                 It 'Should set the resource with all the correct parameters' {
-                    $resourceCurrentState = $script:currentConfiguration | Where-Object { 
-                        $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName 
+                    $resourceCurrentState = $script:currentConfiguration | Where-Object {
+                        $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName
                     }
                     foreach($resource in $resourceCurrentState)
                     {
@@ -98,8 +98,8 @@ try
                 }
 
                 It 'Should set the resource with all the correct parameters' {
-                    $resourceCurrentState = $script:currentConfiguration | Where-Object { 
-                        $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName 
+                    $resourceCurrentState = $script:currentConfiguration | Where-Object {
+                        $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName
                     }
                     foreach($resource in $resourceCurrentState)
                     {
@@ -108,15 +108,15 @@ try
                     }
                 }
             }
-        
+
         $configurationName = "$($script:DSCResourceName)_Remove"
-            
+
         Context "When using configuration $($configurationName) to remove the value" {
             $OutputPath = Join-Path -Path $resultsFolder -ChildPath $configurationName
             $configurationParameters = @{
                         OutputPath        = $OutputPath
                         ConfigurationData = $ConfigurationData
-                    }    
+                    }
             It 'Should throw: Removal of PI Points not supported.' {
                 {
                     & $configurationName @configurationParameters

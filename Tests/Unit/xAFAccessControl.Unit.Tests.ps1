@@ -43,20 +43,20 @@ try
             Ensure = "Present"
         }
 
-        function Get-MockedSecurityObjectEntries
+        function Get-MockedSecurityObjectEntry
         {
             param(
                 [System.Collections.ArrayList] $InputEntries
             )
-                        
+
             $MockAFSecurityObject = New-Object "System.Collections.Generic.List[PSCustomObject]"
             foreach($InputEntry in $InputEntries)
             {
-                $Identity = New-Object PSCustomObject 
+                $Identity = New-Object PSCustomObject
                 $Identity | Add-Member -MemberType NoteProperty -Name Name -Value $InputEntry.Identity -TypeName string
                 $MockEntry = New-Object PSCustomObject
                 $MockEntry | Add-Member -MemberType NoteProperty -Name Name -Value $InputEntry.Name -TypeName string
-                $MockEntry | Add-Member -MemberType NoteProperty -Name Identity -Value $Identity 
+                $MockEntry | Add-Member -MemberType NoteProperty -Name Identity -Value $Identity
                 $MockEntry | Add-Member -MemberType NoteProperty -Name AllowAccess -Value $InputEntry.AllowAccess -TypeName boolean
                 $MockEntry | Add-Member -MemberType NoteProperty -Name Rights -Value $InputEntry.Rights -TypeName string
 
@@ -75,17 +75,17 @@ try
         $DefaultAccess = @{}
         $DefaultAccess += $BaseMockAccess
         $DefaultAccess.Add('Rights','Read, Write, Read Data, Write Data')
-        
+
         $WrongAccess = @{}
         $WrongAccess += $BaseMockAccess
         $WrongAccess.Add('Rights','Read, Write, Read Data, Write Data, Delete, Annotate')
-        
+
         $MockAllAccess = @{}
         $MockAllAccess += $BaseMockAccess
         $MockAllAccess.Add('Rights','All')
-        
+
         $NoAccess = @{}
-        
+
         $OtherUserAccess = @{
                              Name = 'Administrators'
                              Identity = 'Administrators'
@@ -173,16 +173,16 @@ try
             Mock -CommandName Get-AFSecurityObject {
                     return $null
                 }
-            
+
             $testCase = $testCases["DesiredState"]
             Context $testCase.Context {
-                
-                Mock -CommandName Get-AFSecurityObjectEntries {
+
+                Mock -CommandName Get-AFSecurityObjectEntry {
                     $values = $testCase.MockValues
-                    Get-MockedSecurityObjectEntries $values  
+                    Get-MockedSecurityObjectEntry $values
                 }
                 $InputParameters = $testCase.InputParameters
-                
+
                 $result = Get-TargetResource -Type $InputParameters.Type -Path $InputParameters.Path -Identity $InputParameters.Identity -AFServer $InputParameters.AFServer
 
                 It 'Should return the same values passed' {
@@ -195,9 +195,9 @@ try
 
             $testCase = $testCases["NotDesiredStateAbsent"]
             Context $testCase.Context {
-                Mock -CommandName Get-AFSecurityObjectEntries {
+                Mock -CommandName Get-AFSecurityObjectEntry {
                     $values = $testCase.MockValues
-                    Get-MockedSecurityObjectEntries $values  
+                    Get-MockedSecurityObjectEntry $values
                 }
                 $InputParameters = $testCase.InputParameters
 
@@ -219,9 +219,9 @@ try
             {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
-                    Mock -CommandName Get-AFSecurityObjectEntries {
+                    Mock -CommandName Get-AFSecurityObjectEntry {
                         $values = $testCase.MockValues
-                        Get-MockedSecurityObjectEntries $values  
+                        Get-MockedSecurityObjectEntry $values
                     }
                     $InputParameters = $testCase.InputParameters
 
@@ -247,9 +247,9 @@ try
             {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
-                    Mock -CommandName Get-AFSecurityObjectEntries {
+                    Mock -CommandName Get-AFSecurityObjectEntry {
                         $values = $testCase.MockValues
-                        Get-MockedSecurityObjectEntries $values  
+                        Get-MockedSecurityObjectEntry $values
                     }
                     $InputParameters = $testCase.InputParameters
 
@@ -257,12 +257,12 @@ try
                         $result = Test-TargetResource @InputParameters
                         $result | Should -be $testCase.Desired
                     }
-                } 
+                }
             }
         }
 
         Describe "$script:DSCResourceName\ConvertTo-CanonicalAFSecurityRight" {
-            
+
             $abbreviatedValues = @(
                     "r",
                     "w",
@@ -299,14 +299,14 @@ try
                     "Subscribe Others",
                     "All"
                 )
-            
+
             Context 'When supported values are input' {
-                
-                $SupportedValues = $abbreviatedValues + $componentValues + $specialValues 
+
+                $SupportedValues = $abbreviatedValues + $componentValues + $specialValues
                 $SupportedValues += $SupportedValues.ToUpper() + $SupportedValues.ToLower()
 
                 It 'Should return AFSecurityRights enumeration values for all items.' {
-                    $result = $SupportedValues | % { ConvertTo-CanonicalAFSecurityRight $_ } | ? { $_ -in [System.Enum]::GetNames([OSIsoft.AF.AFSecurityRights]) }
+                    $result = $SupportedValues | ForEach-Object { ConvertTo-CanonicalAFSecurityRight $_ } | Where-Object { $_ -in [System.Enum]::GetNames([OSIsoft.AF.AFSecurityRights]) }
                     $result.Count | Should -be $SupportedValues.Count
                 }
             }
@@ -398,7 +398,7 @@ try
                 $SupportedValues += $SupportedValues.ToUpper() + $SupportedValues.ToLower()
 
                 It 'Should return AFSecurityItem enumeration values for all items.' {
-                    $result = $SupportedValues | % { ConvertTo-CanonicalAFSecurityItem $_ } | ? { $_ -in [System.Enum]::GetNames([OSIsoft.AF.AFSecurityItem]) }
+                    $result = $SupportedValues | ForEach-Object { ConvertTo-CanonicalAFSecurityItem $_ } | Where-Object { $_ -in [System.Enum]::GetNames([OSIsoft.AF.AFSecurityItem]) }
                     $result.Count | Should -be $SupportedValues.Count
                 }
             }

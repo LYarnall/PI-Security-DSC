@@ -102,7 +102,7 @@ function Test-TargetResource
     Write-Verbose "Testing PI Firewall entry '$Hostmask'"
     $PIResource = Get-TargetResource -Hostmask $Hostmask -PIDataArchive $PIDataArchive
 
-    return $(Compare-PIResourceGenericProperties -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
+    return $(Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
 }
 
 function Get-PIFirewallDSC

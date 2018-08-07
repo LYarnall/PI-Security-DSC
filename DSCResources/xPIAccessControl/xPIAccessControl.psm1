@@ -93,7 +93,7 @@ function Set-TargetResource
         $PIDataArchive = "localhost"
     )
 
-    $Access = ConverTo-CanonicalAccessString -Access $Access
+    $Access = ConvertTo-CanonicalAccessString -Access $Access
 
     if(!$(Test-TargetResource -Name $Name -Identity $Identity -Type $Type -Access $Access -Ensure $Ensure -PIDataArchive $PIDataArchive))
     {
@@ -146,7 +146,7 @@ function Test-TargetResource
         $PIDataArchive = "localhost"
     )
 
-    $Access = ConverTo-CanonicalAccessString -Access $Access
+    $Access = ConvertTo-CanonicalAccessString -Access $Access
 
     [System.Boolean]$result = $false
     $PIResource = Get-TargetResource -Name $Name -Type $Type -Identity $Identity -PIDataArchive $PIDataArchive
@@ -160,7 +160,7 @@ function Test-TargetResource
     return $result
 }
 
-function ConverTo-CanonicalAccessString
+function ConvertTo-CanonicalAccessString
 {
     param(
         [string]

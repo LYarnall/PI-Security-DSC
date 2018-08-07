@@ -45,6 +45,7 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    
     [CmdletBinding()]
     param
     (
@@ -143,6 +144,7 @@ function Get-PIDatabaseSecurityDSC
 
 function Set-PIDatabaseSecurityDSC
 {
+    
     param(
         [System.String]
         $Security,

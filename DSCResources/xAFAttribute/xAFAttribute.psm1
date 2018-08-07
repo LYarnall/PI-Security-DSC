@@ -58,7 +58,7 @@ function Get-TargetResource
         $ensureResult = 'Present'
         $attributeName = $attribute.Name
         $attributeValue = Get-AFAttributeValueDSC -Attribute $attribute
-        $attributeType = $attribute.Type.Name -replace '\[\]', ''
+        $attributeType = $attribute.Type.Name -replace [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent('\[\]'), [System.String]::Empty
         $attributeIsArray = $attribute.Type.Name.EndsWith('[]')
     }
 
@@ -83,6 +83,7 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     [CmdletBinding()]
     param
     (
@@ -113,9 +114,8 @@ function Set-TargetResource
 
     if($PIResource.Ensure -eq 'Absent')
     {
-        
         if($Ensure -eq 'Absent')
-        { 
+        {
             Write-Verbose "Attribute '$Name' not found in Element"
             return
         }
@@ -135,7 +135,7 @@ function Set-TargetResource
         else
         {
             Write-Verbose "Setting AFAttribute: '$Name'"
-            Set-AFAttributeDSC -AFServer $AFServer -ElementPath $ElementPath -Name $Name -Type $Type -IsArray $IsArray -Value $Value 
+            Set-AFAttributeDSC -AFServer $AFServer -ElementPath $ElementPath -Name $Name -Type $Type -IsArray $IsArray -Value $Value
         }
     }
 }
@@ -263,7 +263,7 @@ function Get-AFAttributeDSC
     )
     $element = Get-AFElementDSC -AFServer $AFServer -ElementPath $ElementPath
     $attribute = $element.Attributes | Where-Object Name -EQ $Name
-    
+
     return $attribute
 }
 
@@ -277,6 +277,7 @@ function Get-AFAttributeValueDSC
 
 function Set-AFAttributeDSC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -332,7 +333,7 @@ function Set-AFAttributeDSC
         Write-Verbose "Setting value to $($Value[0])"
         $attribute.SetValue($Value[0])
         $element.CheckIn()
-    }    
+    }
 }
 
 function Add-AFAttributeDSC
@@ -373,6 +374,7 @@ function Add-AFAttributeDSC
 
 function Remove-AFAttributeDSC
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -393,6 +395,7 @@ function Remove-AFAttributeDSC
 
 function ConvertFrom-TypeString
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseOutputTypeCorrectly", "", Justification="Output type is varies by design.")]
     [cmdletbinding()]
     param
     (

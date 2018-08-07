@@ -71,7 +71,7 @@ function Set-TargetResource
     {
         throw "Removal of PI Points not supported."
     }
-    Set-PIPointDSC -PIDataArchive $PIDataArchive -Name $Name -PtSecurity $PtSecurity -DataSecurity $DataSecurity 
+    Set-PIPointDSC -PIDataArchive $PIDataArchive -Name $Name -PtSecurity $PtSecurity -DataSecurity $DataSecurity
 }
 
 function Test-TargetResource

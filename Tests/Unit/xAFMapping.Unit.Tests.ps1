@@ -69,7 +69,7 @@ try
                 InputParameters = @{
                                 AFServer = $testAFServer
                                 Name = "UnitTestMapping"
-                                Ensure = "Absent" 
+                                Ensure = "Absent"
                 }
                 MockValue = $defaultParameters
                 Desired = $false
@@ -94,7 +94,7 @@ try
                 InputParameters = @{
                                 AFServer = $testAFServer
                                 Name = "UnitTestMapping"
-                                Ensure = "Absent" 
+                                Ensure = "Absent"
                 }
                 MockValue = $null
                 Desired = $true
@@ -127,7 +127,7 @@ try
         }
 
         Describe "$TargetModule\Get-TargetResource" {
-            
+
             $testCase = $testCases["DesiredState"]
             Context $testCase.Context {
                 Mock -CommandName Get-AFMappingDSC {
@@ -135,7 +135,7 @@ try
                 }
 
                 $InputParameters = $testCase.InputParameters
-                
+
                 $result = Get-TargetResource -AFServer $InputParameters.AFServer -Name $InputParameters.Name
 
                 It 'Should return the same values passed' {
@@ -145,7 +145,7 @@ try
                     }
                 }
             }
-            
+
             $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
             foreach($AbsentCase in $AbsentCases)
             {
@@ -156,7 +156,7 @@ try
                     }
 
                     $InputParameters = $testCase.InputParameters
-                
+
                     $result = Get-TargetResource -AFServer $InputParameters.AFServer -Name $InputParameters.Name
 
                     It 'Should return Ensure as Absent' {
@@ -200,9 +200,9 @@ try
                 }
             }
         }
-        
+
         Describe "$TargetModule\Test-TargetResource" {
-            
+
             foreach($key in $testCases.Keys)
             {
                 $testCase = $testCases[$key]
@@ -216,7 +216,7 @@ try
                         $result = Test-TargetResource @InputParameters
                         $result | Should -be $testCase.Desired
                     }
-                } 
+                }
             }
         }
     }
