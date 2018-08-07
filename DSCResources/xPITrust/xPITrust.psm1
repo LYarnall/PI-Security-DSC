@@ -54,7 +54,6 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     [CmdletBinding()]
     param
     (
@@ -211,7 +210,6 @@ function Get-PITrustDSC
 
 function Set-PITrustDSC
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     param(
         [parameter(Mandatory = $true)]
         [System.Collections.Hashtable]
@@ -240,7 +238,6 @@ function Add-PITrustDSC
 
 function Remove-PITrustDSC
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     param(
         [System.String]
         $PIDataArchive = "localhost",

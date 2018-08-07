@@ -47,7 +47,6 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     [CmdletBinding()]
     param
     (
@@ -129,7 +128,6 @@ function Get-PITuningParameterDSC
 
 function Set-PITuningParameterDSC
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -147,7 +145,6 @@ function Set-PITuningParameterDSC
 
 function Reset-PITuningParameterDSC
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     param(
         [parameter(Mandatory = $true)]
         [System.String]

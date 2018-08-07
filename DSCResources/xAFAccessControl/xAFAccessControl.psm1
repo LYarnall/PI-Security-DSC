@@ -208,7 +208,6 @@ function Add-AFIdentityAccess
 
 function Remove-AFIdentityAccess
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     param($PISystem, $AFSecurityIdentity, $TargetItems, $ApplyToChildren)
     [OSIsoft.AF.AFSecurity]::RemoveIdentity($PISystem, $AFSecurityIdentity, $TargetItems, $ApplyToChildren)
 }

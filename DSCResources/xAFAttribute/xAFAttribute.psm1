@@ -83,7 +83,6 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     [CmdletBinding()]
     param
     (
@@ -277,7 +276,6 @@ function Get-AFAttributeValueDSC
 
 function Set-AFAttributeDSC
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -374,7 +372,6 @@ function Add-AFAttributeDSC
 
 function Remove-AFAttributeDSC
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Justification="This is not an interactive process.")]
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
