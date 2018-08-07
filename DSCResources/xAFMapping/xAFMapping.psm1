@@ -43,7 +43,7 @@ function Get-TargetResource
         Name = $mapping.Name;
         Description = $mapping.Description;
         Account = $mapping.AccountDisplayName;
-        AFIdentityName = $mapping.SecurityIdentity.Name;
+        Identity = $mapping.SecurityIdentity.Name;
         Ensure = $Ensure;
     }
 
@@ -59,7 +59,7 @@ function Set-TargetResource
         $Description,
 
         [System.String]
-        $AFIdentityName,
+        $Identity,
 
         [parameter(Mandatory = $true)]
         [System.String]
@@ -105,18 +105,18 @@ function Set-TargetResource
             {
                 Write-Verbose "Removing and resetting AF Mapping '$Name'"
                 Remove-AFMappingDSC -AFServer $AFServer -Name $Name
-                Add-AFMappingDSC -AFServer $AFServer -Name $Name -Description $Description -Account $Account -Identity $AFIdentityName
+                Add-AFMappingDSC -AFServer $AFServer -Name $Name -Description $Description -Account $Account -Identity $Identity
             }
             else
             {
                 Write-Verbose "Setting AF Mapping '$Name'"
-                Set-AFMappingDSC -AFServer $AFServer -Name $Name -Identity $AFIdentityName -Description $Description
+                Set-AFMappingDSC -AFServer $AFServer -Name $Name -Identity $Identity -Description $Description
             }
         }
         else
         {
             Write-Verbose "Adding AF Mapping '$Name'"
-            Add-AFMappingDSC -AFServer $AFServer -Name $Name -Description $Description -Account $Account -Identity $AFIdentityName
+            Add-AFMappingDSC -AFServer $AFServer -Name $Name -Description $Description -Account $Account -Identity $Identity
         }
     }
     else
@@ -136,7 +136,7 @@ function Test-TargetResource
         $Description,
 
         [System.String]
-        $AFIdentityName,
+        $Identity,
 
         [parameter(Mandatory = $true)]
         [System.String]
@@ -248,7 +248,7 @@ function Add-AFMappingDSC
 
     $AF = Connect-AFServerUsingSDK -AFServer $AFServer
 
-    # Check if the specified Account and AFIdentityName are valid, stop if not.
+    # Check if the specified Account and Identity are valid, stop if not.
     $ErrorActionPreference = 'Stop'
     $ntAccount = Get-NTAccount -AccountName $Account # will throw exception if invalid
     $AFIdentity = Get-ValidAFIdentity -AFServer $AFServer -Identity $Identity

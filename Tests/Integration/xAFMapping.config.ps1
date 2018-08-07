@@ -3,7 +3,7 @@ $ConfigurationData = @{
         @{
             NodeName = 'localhost'
             Name = "IntegrationTempMapping"
-            AFIdentityName = "IntegrationTempIdentity"
+            Identity = "IntegrationTempIdentity"
         }
     )
 }
@@ -15,14 +15,14 @@ Configuration xAFMapping_Set
         [System.String] $Description
     )
 
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        AFIdentity $($Node.AFIdentityName)
+        AFIdentity $($Node.Identity)
         {
             AFServer = $Node.NodeName
-            Name = $($Node.AFIdentityName)
+            Name = $($Node.Identity)
             Ensure = "Present"
             IsEnabled = $true
         }
@@ -32,19 +32,19 @@ Configuration xAFMapping_Set
             AFServer = $Node.NodeName
             Name = $Node.Name
             Account = "NT Authority\" + $Account
-            AFIdentityName = $Node.AFIdentityName
+            Identity = $Node.Identity
             Description = $Description
             Ensure = "Present"
-            DependsOn = "[AFIdentity]$($Node.AFIdentityName)"
-        } 
+            DependsOn = "[AFIdentity]$($Node.Identity)"
+        }
     }
 }
 
 Configuration xAFMapping_Remove
 {
     param()
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
         AFMapping xAFMapping_RemoveIntegration
@@ -52,21 +52,21 @@ Configuration xAFMapping_Remove
             AFServer = $Node.NodeName
             Name = $Node.Name
             Ensure = "Absent"
-        } 
+        }
     }
 }
 
 Configuration xAFMapping_CleanUp
 {
     param()
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        AFIdentity $($Node.AFIdentityName)
+        AFIdentity $($Node.Identity)
         {
             AFServer = $Node.NodeName
-            Name = $($Node.AFIdentityName)
+            Name = $($Node.Identity)
             Ensure = "Absent"
         }
     }

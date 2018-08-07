@@ -9,7 +9,7 @@ Configuration AddAFMappingExample
 			Name = "PIReader"
             Description = "Read-only user role."
             Account = "Domain\Domain Users"
-            AFIdentityName = "PIReaders"
+            Identity = "PIReaders"
             Ensure = "Present"
             AFServer = "localhost"
 		}
