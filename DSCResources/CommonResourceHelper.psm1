@@ -51,7 +51,7 @@ function Get-PIResource_Ensure
         $Ensure = "Present"
         Foreach($Property in $($PIResource | Get-Member -MemberType Property | Select-Object -ExpandProperty Name))
         {
-            $RawValue = $PIResource | Select-Object -Property $Property
+            $RawValue = $PIResource | Select-Object -ExpandProperty $Property
             if($null -eq $RawValue)
             {
                 $Value = 'NULL'
