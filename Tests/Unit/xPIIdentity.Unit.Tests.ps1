@@ -38,7 +38,6 @@ try
                                 Ensure = "Present"
                                 AllowUseInTrusts = $true
                                 Name = "UnitTestIdentity"
-                                AllowExplicitLogin = $false
                                 AllowUseInMappings = $true
                                 Description = "Identity for Unit Testing"
         }

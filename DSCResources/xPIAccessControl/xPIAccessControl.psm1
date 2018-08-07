@@ -28,7 +28,8 @@ function Get-TargetResource
         [System.String]
         $Name,
 
-		[parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
+        [ValidateSet('PIDatabaseSecurity','PtSecurity','DataSecurity')]
         [System.String]
         $Type,
 
@@ -74,7 +75,8 @@ function Set-TargetResource
         [System.String]
         $Name,
 
-		[parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
+        [ValidateSet('PIDatabaseSecurity','PtSecurity','DataSecurity')]
         [System.String]
         $Type,
 
@@ -82,6 +84,7 @@ function Set-TargetResource
         [System.String]
         $Identity,
 
+        [ValidateSet("Read","Write","Read, Write","Read,Write","ReadWrite","r","w","r,w","rw","")]
         [System.String]
         $Access,
 
@@ -127,7 +130,8 @@ function Test-TargetResource
         [System.String]
         $Name,
 
-		[parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
+        [ValidateSet('PIDatabaseSecurity','PtSecurity','DataSecurity')]
         [System.String]
         $Type,
 
@@ -135,6 +139,7 @@ function Test-TargetResource
         [System.String]
         $Identity,
 
+        [ValidateSet("Read","Write","Read, Write","Read,Write","ReadWrite","r","w","r,w","rw","")]
         [System.String]
         $Access,
 

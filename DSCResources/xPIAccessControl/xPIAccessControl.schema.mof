@@ -19,7 +19,7 @@
 [ClassVersion("0.1.0.0"), FriendlyName("PIAccessControl")]
 class xPIAccessControl : OMI_BaseResource
 {
-    [Write, ValueMap{"Read","Write","Read, Write","Read,Write","ReadWrite","r","w","r,w","rw"}, Values{"Read","Write","Read, Write","Read,Write","ReadWrite","r","w","r,w","rw"}] String Access;
+    [Write, ValueMap{"Read","Write","Read, Write","Read,Write","ReadWrite","r","w","r,w","rw",""}, Values{"Read","Write","Read, Write","Read,Write","ReadWrite","r","w","r,w","rw",""}] String Access;
     [Key, Description("Database name for the PIDatabaseSecurity Type. PI Point for DataSecurity or PtSecurity Type.")] String Name;
     [Key] String Identity;
     [Key, ValueMap{"PIDatabaseSecurity","PtSecurity","DataSecurity"}, Values{"PIDatabaseSecurity","PtSecurity","DataSecurity"}] String Type;

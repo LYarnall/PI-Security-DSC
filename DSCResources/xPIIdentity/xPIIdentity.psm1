@@ -75,9 +75,6 @@ function Set-TargetResource
         $Name,
 
         [System.Boolean]
-        $AllowExplicitLogin=$false,
-
-        [System.Boolean]
         $AllowUseInMappings=$true,
 
         [System.String]
@@ -108,7 +105,7 @@ function Set-TargetResource
             Set-PIIdentityDSC -PIDataArchive $PIDataArchive -Name $Name `
                                 -CanDelete $CanDelete -IsEnabled $IsEnabled `
                                 -AllowUseInMappings $AllowUseInMappings -AllowUseInTrusts $AllowUseInTrusts `
-                                -AllowExplicitLogin $AllowExplicitLogin -Description $Description
+                                -Description $Description
         }
         else
         {
@@ -118,7 +115,7 @@ function Set-TargetResource
             Add-PIIdentityDSC -PIDataArchive $PIDataArchive -Name $Name `
                                 -CanDelete $CanDelete -IsEnabled $IsEnabled `
                                 -AllowUseInMappings $AllowUseInMappings -AllowUseInTrusts $AllowUseInTrusts `
-                                -AllowExplicitLogin $AllowExplicitLogin -Description $Description
+                                -Description $Description
         }
     }
     # If the resource is supposed to be absent we remove it.
@@ -154,9 +151,6 @@ function Test-TargetResource
         [parameter(Mandatory = $true)]
         [System.String]
         $Name,
-
-        [System.Boolean]
-        $AllowExplicitLogin,
 
         [System.Boolean]
         $AllowUseInMappings,
@@ -210,9 +204,6 @@ function Set-PIIdentityDSC
         $Name,
 
         [System.Boolean]
-        $AllowExplicitLogin=$false,
-
-        [System.Boolean]
         $AllowUseInMappings=$true,
 
         [System.String]
@@ -247,9 +238,6 @@ function Add-PIIdentityDSC
         [parameter(Mandatory = $true)]
         [System.String]
         $Name,
-
-        [System.Boolean]
-        $AllowExplicitLogin=$false,
 
         [System.Boolean]
         $AllowUseInMappings=$true,
