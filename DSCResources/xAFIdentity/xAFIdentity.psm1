@@ -135,7 +135,7 @@ function Test-TargetResource
     Write-Verbose "Testing AF Identity: '$Name'"
     $PIResource = Get-TargetResource -Name $Name -AFServer $AFServer
 
-    return (Compare-PIResourceGenericProperties -Desired $PSBoundParameters -Current $PIResource)
+    return (Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource)
 }
 
 function Set-AFIdentityDSC
@@ -151,7 +151,7 @@ function Set-AFIdentityDSC
 
         [System.String]
         $Description,
-        
+
         [System.String]
         $IsEnabled
     )
@@ -176,7 +176,7 @@ function Add-AFIdentityDSC
 
         [System.String]
         $Description,
-        
+
         [System.String]
         $IsEnabled
     )
@@ -201,7 +201,7 @@ function Remove-AFIdentityDSC
 
         [System.String]
         $Description,
-        
+
         [System.String]
         $IsEnabled
     )

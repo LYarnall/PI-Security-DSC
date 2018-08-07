@@ -38,7 +38,7 @@ try
                                 AFServer=$testAFServer
                                 Ensure="Present"
                                 Name="World"
-                                IsEnabled=$false 
+                                IsEnabled=$false
         }
         $testCases = @{
             DesiredState = @{
@@ -66,7 +66,7 @@ try
                                 AFServer=$testAFServer
                                 Ensure="Absent"
                                 Name="World"
-                                IsEnabled=$false 
+                                IsEnabled=$false
                 }
                 MockValue = @{
                         AFServer=$testAFServer
@@ -95,7 +95,7 @@ try
                                 AFServer=$testAFServer
                                 Ensure="Absent"
                                 Name="World"
-                                IsEnabled=$false 
+                                IsEnabled=$false
                 }
                 MockValue = $null
                 Desired = $true
@@ -117,13 +117,13 @@ try
                 $MockAFIdentity = New-Object PSCustomObject
                 $MockAFIdentity | Add-Member -MemberType NoteProperty -Name Name -Value $InputEntry.Name -TypeName string
                 $MockAFIdentity | Add-Member -MemberType NoteProperty -Name Description -Value $InputEntry.Description -TypeName string
-                $MockAFIdentity | Add-Member -MemberType NoteProperty -Name IsEnabled -Value $InputEntry.IsEnabled -TypeName boolean 
+                $MockAFIdentity | Add-Member -MemberType NoteProperty -Name IsEnabled -Value $InputEntry.IsEnabled -TypeName boolean
             }
             return $MockAFIdentity
         }
 
         Describe "$TargetModule\Get-TargetResource" {
-            
+
             $testCase = $testCases["DesiredState"]
             Context $testCase.Context {
                 Mock -CommandName Get-AFIdentityDSC {
@@ -131,7 +131,7 @@ try
                 }
 
                 $InputParameters = $testCase.InputParameters
-                
+
                 $result = Get-TargetResource -AFServer $InputParameters.AFServer -Name $InputParameters.Name
 
                 It 'Should return the same values passed' {
@@ -141,7 +141,7 @@ try
                     }
                 }
             }
-            
+
             $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
             foreach($AbsentCase in $AbsentCases)
             {
@@ -152,7 +152,7 @@ try
                     }
 
                     $InputParameters = $testCase.InputParameters
-                
+
                     $result = Get-TargetResource -AFServer $InputParameters.AFServer -Name $InputParameters.Name
 
                     It 'Should return Ensure as Absent' {
@@ -196,9 +196,9 @@ try
                 }
             }
         }
-        
+
         Describe "$TargetModule\Test-TargetResource" {
-            
+
             foreach($key in $testCases.Keys)
             {
                 $testCase = $testCases[$key]
@@ -212,7 +212,7 @@ try
                         $result = Test-TargetResource @InputParameters
                         $result | Should -be $testCase.Desired
                     }
-                } 
+                }
             }
         }
     }

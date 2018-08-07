@@ -168,7 +168,7 @@ function Test-TargetResource
     Write-Verbose "Testing PI Identity: '$Name'"
     $PIResource = Get-TargetResource -Name $Name -PIDataArchive $PIDataArchive
 
-    return $(Compare-PIResourceGenericProperties -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
+    return $(Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
 }
 
 function Get-PIIdentityDSC

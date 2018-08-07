@@ -113,8 +113,7 @@ function Test-TargetResource
 
 function Get-PITuningParameterDSC
 {
-    param
-    (
+    param(
         [parameter(Mandatory = $true)]
         [System.String]
         $Name,
@@ -129,8 +128,7 @@ function Get-PITuningParameterDSC
 
 function Set-PITuningParameterDSC
 {
-    param
-    (
+    param(
         [parameter(Mandatory = $true)]
         [System.String]
         $Name,
@@ -147,8 +145,7 @@ function Set-PITuningParameterDSC
 
 function Reset-PITuningParameterDSC
 {
-    param
-    (
+    param(
         [parameter(Mandatory = $true)]
         [System.String]
         $Name,

@@ -31,7 +31,7 @@ try
         $TargetModule = 'xPITrust'
         $TargetObject = 'PITrust entry'
         $testPIDataArchive = 'localhost'
-        $defaultParameters = @{                 
+        $defaultParameters = @{
                                 Name = "UnitTestTrust"
                                 ApplicationName = "ProcBook.exe"
                                 Description = "Correct description"
@@ -149,7 +149,7 @@ try
         }
         $CommandNoun = "PITrustDSC"
         Describe "$TargetModule\Get-TargetResource" {
-            
+
             $testCase = $testCases["DesiredState"]
             Context $testCase.Context {
                 Mock -CommandName "Get-$CommandNoun" {
@@ -157,7 +157,7 @@ try
                 }
 
                 $InputParameters = $testCase.InputParameters
-                
+
                 $result = Get-TargetResource -PIDataArchive $InputParameters.PIDataArchive -Name $InputParameters.Name
 
                 It 'Should return the same values passed' {
@@ -167,7 +167,7 @@ try
                     }
                 }
             }
-            
+
             $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
             foreach($AbsentCase in $AbsentCases)
             {
@@ -178,7 +178,7 @@ try
                     }
 
                     $InputParameters = $testCase.InputParameters
-                
+
                     $result = Get-TargetResource -PIDataArchive $InputParameters.PIDataArchive -Name $InputParameters.Name
 
                     It 'Should return Ensure as Absent' {
@@ -189,7 +189,7 @@ try
         }
 
         Describe "$TargetModule\Set-TargetResource" {
-            
+
             Mock -CommandName "Add-$CommandNoun" -Verifiable
             Mock -CommandName "Remove-$CommandNoun" -Verifiable
             Mock -CommandName "Set-$CommandNoun" -Verifiable
@@ -211,9 +211,9 @@ try
                 }
             }
         }
-        
+
         Describe "$TargetModule\Test-TargetResource" {
-            
+
             foreach($key in $testCases.Keys)
             {
                 $testCase = $testCases[$key]
@@ -227,7 +227,7 @@ try
                         $result = Test-TargetResource @InputParameters
                         $result | Should -be $testCase.Desired
                     }
-                } 
+                }
             }
         }
     }

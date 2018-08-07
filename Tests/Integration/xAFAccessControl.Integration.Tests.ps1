@@ -40,9 +40,9 @@ try
     . $configFile
 
     Describe "$script:DSCResourceName\Integration" {
-        
+
         $configurationName = "$($script:DSCResourceName)_Set"
-         
+
             Context "When using configuration $($configurationName)" {
                 $OutputPath = Join-Path -Path $resultsFolder -ChildPath $configurationName
                 $configurationParameters = @{
@@ -64,8 +64,8 @@ try
                 }
 
                 It 'Should set the resource with all the correct parameters' {
-                    $resourceCurrentState = $script:currentConfiguration | Where-Object { 
-                        $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName 
+                    $resourceCurrentState = $script:currentConfiguration | Where-Object {
+                        $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName
                     }
                     foreach($resource in $resourceCurrentState)
                     {
@@ -74,19 +74,17 @@ try
                     }
                 }
             }
-        
+
         $configurationName = "$($script:DSCResourceName)_Remove"
-            
+
         Context "When using configuration $($configurationName)" {
             $OutputPath = Join-Path -Path $resultsFolder -ChildPath $configurationName
             $configurationParameters = @{
                         OutputPath        = $OutputPath
                         ConfigurationData = $ConfigurationData
-            }    
+            }
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    
-
                     & $configurationName @configurationParameters
 
                     $startDscConfigurationParameters["Path"] = $OutputPath
@@ -99,8 +97,8 @@ try
             }
 
             It 'Should set the resource with all the correct parameters' {
-                $resourceCurrentState = $script:currentConfiguration | Where-Object { 
-                    $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName 
+                $resourceCurrentState = $script:currentConfiguration | Where-Object {
+                    $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName
                 }
                 foreach($resource in $resourceCurrentState)
                 {
@@ -113,7 +111,7 @@ try
 finally
 {
     $configurationName = "$($script:DSCResourceName)_CleanUp"
-    $OutputPath = Join-Path -Path $resultsFolder -ChildPath $configurationName 
+    $OutputPath = Join-Path -Path $resultsFolder -ChildPath $configurationName
     $configurationParameters = @{
                         OutputPath        = $OutputPath
                         ConfigurationData = $ConfigurationData

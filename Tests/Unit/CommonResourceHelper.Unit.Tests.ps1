@@ -21,7 +21,7 @@ function Invoke-TestSetup
 
 function Invoke-TestCleanup
 {
-    
+
 }
 
 #endregion HEADER
@@ -32,10 +32,10 @@ try
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
-        
+
         $TargetModule = 'CommonResourceHelper'
         Describe "$TargetModule\Get-PIResource_Ensure" {
-            
+
             Context 'When a null value is received' {
 
                 It 'Should return absent.' {
@@ -58,10 +58,10 @@ try
         }
 
         Describe "$TargetModule\Compare-PIDataArchiveACL" {
-            
+
             Context 'When matching values are received' {
                 $Desired = "piadmin: A(r,w) | piadmins: A(r,w) | PIWorld: A(r) | PI Readers: A()"
-                
+
                 It 'Should return true.' {
                     $result = Compare-PIDataArchiveACL -Desired $Desired -Current $Desired
                     $result | Should -be $true
@@ -97,10 +97,10 @@ try
             }
         }
 
-        Describe "$TargetModule\Compare-PIResourceGenericProperties" {
-            
+        Describe "$TargetModule\Compare-PIResourcePropertyCollection" {
+
             Context 'When matching resources are received' {
-                
+
                 $Current = @{
                     Ensure = "Present"
                     Property1 = 1
@@ -114,9 +114,9 @@ try
                     Property2 = "2"
                     Property3 = ""
                 }
-                
+
                 It 'Should return true.' {
-                    $result = Compare-PIResourceGenericProperties -Desired $Desired -Current $Current
+                    $result = Compare-PIResourcePropertyCollection -Desired $Desired -Current $Current
                     $result | Should -be $true
                 }
             }
@@ -134,22 +134,22 @@ try
                     Property1 = 1
                     Property2 = "2"
                 }
-                
+
                 It 'Should return false.' {
-                    $result = Compare-PIResourceGenericProperties -Desired $Desired -Current $Current
+                    $result = Compare-PIResourcePropertyCollection -Desired $Desired -Current $Current
                     $result | Should -be $false
                 }
             }
 
             Context 'When non-matching Ensure resources are received' {
-                
+
                 $Desired = @{
                     Ensure = "Absent"
                     Property1 = 1
                 }
-                
+
                 It 'Should return false.' {
-                    $result = Compare-PIResourceGenericProperties -Desired $Desired -Current $Current
+                    $result = Compare-PIResourcePropertyCollection -Desired $Desired -Current $Current
                     $result | Should -be $false
                 }
             }
@@ -160,15 +160,15 @@ try
                     Ensure = "Present"
                     Property1 = 2
                 }
-                
+
                 It 'Should return false.' {
-                    $result = Compare-PIResourceGenericProperties -Desired $Desired -Current $Current
+                    $result = Compare-PIResourcePropertyCollection -Desired $Desired -Current $Current
                     $result | Should -be $false
                 }
             }
         }
 
-        Describe "$TargetModule\Set-PIResourceParametersPreserved" {
+        Describe "$TargetModule\Set-PIResourceSavedParameterSet" {
 
             Context 'When all parameters are specified' {
                 [System.Collections.Hashtable] $ParameterTable = @{
@@ -186,9 +186,9 @@ try
                     P2 = "5"
                     P3 = "6"
                 }
-                
+
                 It 'Should return the ParameterTable for the command.' {
-                    $result = Set-PIResourceParametersPreserved -pt $ParameterTable -sp $SpecifiedParameters -cp $CurrentParameters
+                    $result = Set-PIResourceSavedParameterSet -pt $ParameterTable -sp $SpecifiedParameters -cp $CurrentParameters
                     $result | Should -be $ParameterTable
                 }
             }
@@ -206,7 +206,7 @@ try
                     P3 = "6"
                 }
                 It 'Should throw.' {
-                    { Set-PIResourceParametersPreserved -pt $ParameterTable -sp $SpecifiedParameters -cp $CurrentParameters } | Should -Throw "Cannot bind argument to parameter 'SpecifiedParameters' because it is an empty array."
+                    { Set-PIResourceSavedParameterSet -pt $ParameterTable -sp $SpecifiedParameters -cp $CurrentParameters } | Should -Throw "Cannot bind argument to parameter 'SpecifiedParameters' because it is an empty array."
                 }
             }
 
@@ -231,7 +231,7 @@ try
                         P2 = "2"
                         P3 = "6"
                     }
-                    $result = Set-PIResourceParametersPreserved -pt $ParameterTable -sp $SpecifiedParameters -cp $CurrentParameters
+                    $result = Set-PIResourceSavedParameterSet -pt $ParameterTable -sp $SpecifiedParameters -cp $CurrentParameters
                     foreach($value in $result.GetEnumerator())
                     {
                         $result[$value.Key] | Should -Be $ExpectedResult[$value.Key]

@@ -31,7 +31,7 @@ try
         $TargetModule = 'xPIAccessControl'
         $TargetObject = 'PIAccessControl entry'
         $testPIDataArchive = 'localhost'
-        $defaultParameters = @{                 
+        $defaultParameters = @{
                                 Identity = "piadmins"
                                 Name = "PIPOINT"
                                 Type = "PIDatabaseSecurity"
@@ -104,9 +104,9 @@ try
         Mock -CommandName Connect-PIDataArchive {
             return $null
         }
-        
+
         Describe "$TargetModule\Get-TargetResource" {
-            
+
             $testCase = $testCases["DesiredState"].Clone()
             Context $testCase.Context {
                 Mock -CommandName "Get-PIAccessControl" {
@@ -114,7 +114,7 @@ try
                 }
 
                 $InputParameters = $testCase.InputParameters
-                
+
                 $result = Get-TargetResource -Name $InputParameters.Name -Type $InputParameters.Type -Identity $InputParameters.Identity -PIDataArchive $InputParameters.PIDataArchive
 
                 It 'Should return the same values passed' {
@@ -124,7 +124,7 @@ try
                     }
                 }
             }
-            
+
             $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
             foreach($AbsentCase in $AbsentCases)
             {
@@ -135,7 +135,7 @@ try
                     }
 
                     $InputParameters = $testCase.InputParameters
-                
+
                     $result = Get-TargetResource -Name $InputParameters.Name -Type $InputParameters.Type -Identity $InputParameters.Identity -PIDataArchive $InputParameters.PIDataArchive
 
                     It 'Should return Ensure as Absent' {
@@ -146,7 +146,7 @@ try
         }
 
         Describe "$TargetModule\Set-TargetResource" {
-            
+
             Mock -CommandName "Set-PIAccessControl" -Verifiable
 
             foreach($key in $testCases.Keys)
@@ -177,14 +177,13 @@ try
                 }
             }
         }
-        
+
         Describe "$TargetModule\Test-TargetResource" {
-            
+
             foreach($key in $testCases.Keys)
             {
                 $testCase = $testCases[$key].Clone()
                 Context $testCase.Context {
-                    $MockAccess = $testCase.Access.Clone()
                     Mock -CommandName "Get-PIAccessControl" {
                         return $testCase.Access
                     }
@@ -194,12 +193,12 @@ try
                         $result = Test-TargetResource @InputParameters
                         $result | Should -be $testCase.Desired
                     }
-                } 
+                }
             }
         }
-        
+
         Describe "$TargetModule\Set-PIAccessControl" {
-            
+
             $TestCase =  @{
                             piadmin = "Read, Write"
                             piadmins = "Read, Write"
@@ -224,7 +223,7 @@ try
         }
 
         Describe "$TargetModule\Get-PIAccessControl" {
-            
+
             $TestCase = @{
                     HashTable = @{
                         piadmin = "Read, Write"
@@ -250,7 +249,7 @@ try
                         foreach($key in $result.Keys){ $result[$Key] | Should -Be $TestCase["HashTable"][$key] }
                     }
                     It 'Should call the right helper function' {
-                        $result = Get-PIAccessControl -PIDataArchive $testPIDataArchive -Name "Test" -Type $type
+                        Get-PIAccessControl -PIDataArchive $testPIDataArchive -Name "Test" -Type $type | Out-Null
                         Assert-MockCalled -CommandName $MockCommandName -Exactly 1 -Scope It
                     }
                 }
@@ -258,7 +257,7 @@ try
         }
 
         Describe "$TargetModule\ConvertTo-PIAccessControlHashtable" {
-            
+
             Context 'When a supported value is passed' {
             $TestCase = @{
                     HashTable = @{
@@ -285,7 +284,7 @@ try
         }
 
         Describe "$TargetModule\ConvertTo-PIAccessControlString" {
-            
+
             Context 'When an empty value and Present are passed' {
             $TestCase = @{
                     HashTable = @{
@@ -351,8 +350,8 @@ try
             }
         }
 
-        Describe "$TargetModule\ConverTo-CanonicalAccessString" {
-            
+        Describe "$TargetModule\ConvertTo-CanonicalAccessString" {
+
             Context 'When a supported value is passed' {
                 $CanonicalValues = @(
                     "",
@@ -374,7 +373,7 @@ try
                     ""
                 )
                 $TestValues = $SupportedValues + $SupportedValues.ToUpper()
-                $result = $TestValues | Foreach-Object { ConverTo-CanonicalAccessString $_ }
+                $result = $TestValues | Foreach-Object { ConvertTo-CanonicalAccessString $_ }
 
                 It 'Should return a canonical value' {
                     $result | Foreach-Object { $_ | Should -BeIn $CanonicalValues }
@@ -384,7 +383,7 @@ try
             Context 'When an unsupported value is passed' {
                 $UnsupportedValue = "Garbage"
                 It "Should throw: Invalid Access string '$UnsupportedValue' specified." {
-                    { ConverTo-CanonicalAccessString $UnsupportedValue } | Should -Throw "Invalid Access string '$UnsupportedValue' specified."
+                    { ConvertTo-CanonicalAccessString $UnsupportedValue } | Should -Throw "Invalid Access string '$UnsupportedValue' specified."
                 }
             }
         }

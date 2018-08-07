@@ -118,7 +118,7 @@ function Set-TargetResource
         if($PIResource.Ensure -eq "Present")
         {
             $SpecifiedParameters = [System.String[]]$PSBoundParameters.Keys
-            $ParameterTable = Set-PIResourceParametersPreserved -pt $ParameterTable `
+            $ParameterTable = Set-PIResourceSavedParameterSet -pt $ParameterTable `
                                                                 -sp $SpecifiedParameters `
                                                                 -cp $PIResource `
                                                                 -Verbose:$VerbosePreference
@@ -190,7 +190,7 @@ function Test-TargetResource
     Write-Verbose "Testing PITrust: '$Name'"
     $PIResource = Get-TargetResource -Name $Name -PIDataArchive $PIDataArchive
 
-    return $(Compare-PIResourceGenericProperties -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
+    return $(Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
 }
 
 function Get-PITrustDSC
@@ -210,10 +210,9 @@ function Get-PITrustDSC
 
 function Set-PITrustDSC
 {
-    param
-    (
+    param(
         [parameter(Mandatory = $true)]
-        [System.Collections.Hashtable] 
+        [System.Collections.Hashtable]
         $ParameterTable
     )
     $PIDataArchive = $ParameterTable["PIDataArchive"]
@@ -227,7 +226,7 @@ function Add-PITrustDSC
 {
     param(
         [parameter(Mandatory = $true)]
-        [System.Collections.Hashtable] 
+        [System.Collections.Hashtable]
         $ParameterTable
     )
     $PIDataArchive = $ParameterTable["PIDataArchive"]

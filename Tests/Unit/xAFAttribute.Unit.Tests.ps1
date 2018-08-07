@@ -31,7 +31,7 @@ try
         $TargetModule = 'xAFAttribute'
         $TargetObject = 'AFAttribute entry'
         $testAFServer = 'localhost'
-        $baseParameters = @{                 
+        $baseParameters = @{
                                 AFServer = $testAFServer
                                 ElementPath = "UnitTestingDatabase\UnitTestingRootElement"
                                 Name = "UnitTestingAttribute"
@@ -165,9 +165,8 @@ try
             return $InputEntry.Value
         }
 
-        $CommandNoun = "AFAttributeDSC"
         Describe "$TargetModule\Get-TargetResource" {
-            
+
             $testCase = $testCases["DesiredState"]
             Context $testCase.Context {
                 Mock -CommandName "Get-AFAttributeDSC" {
@@ -178,7 +177,7 @@ try
                 }
 
                 $InputParameters = $testCase.InputParameters
-                
+
                 $result = Get-TargetResource -Ensure $InputParameters.Ensure -ElementPath $InputParameters.ElementPath -Name $InputParameters.Name -AFServer $InputParameters.AFServer
 
                 It 'Should return the same values passed' {
@@ -188,7 +187,7 @@ try
                     }
                 }
             }
-            
+
             $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
             foreach($AbsentCase in $AbsentCases)
             {
@@ -202,7 +201,7 @@ try
                     }
 
                     $InputParameters = $testCase.InputParameters
-                
+
                     $result = Get-TargetResource -Ensure $InputParameters.Ensure -ElementPath $InputParameters.ElementPath -Name $InputParameters.Name -AFServer $InputParameters.AFServer
 
                     It 'Should return Ensure as Absent' {
@@ -213,7 +212,7 @@ try
         }
 
         Describe "$TargetModule\Set-TargetResource" {
-            
+
             Mock -CommandName "Add-AFAttributeDSC" -Verifiable
             Mock -CommandName "Remove-AFAttributeDSC" -Verifiable
             Mock -CommandName "Set-AFAttributeDSC" -Verifiable
@@ -247,9 +246,9 @@ try
                 }
             }
         }
-        
+
         Describe "$TargetModule\Test-TargetResource" {
-            
+
             foreach($key in $testCases.Keys)
             {
                 $testCase = $testCases[$key]
@@ -266,13 +265,13 @@ try
                         $result = Test-TargetResource @InputParameters
                         $result | Should -be $testCase.Desired
                     }
-                } 
+                }
             }
         }
 
         Describe "$TargetModule\ConvertFrom-TypeString" {
             $SupportedTypeNames = @(
-                    "Boolean",  
+                    "Boolean",
                     "Byte",
                     "DateTime",
                     "Double",
@@ -283,10 +282,10 @@ try
                     "String"
                 )
             Context 'When supported array values are entered' {
-                
-                It 'Should return an array of the correct type' {
-                    foreach($SupportedTypeName in $SupportedTypeName)
-                    {
+
+                foreach($SupportedTypeName in $SupportedTypeNames)
+                {
+                    It "Should return an array of type $SupportedTypeName" {
                         $result = ConvertFrom-TypeString -TypeName $SupportedTypeName -IsArray $true
                         $result.BaseType.Name | Should -Be 'Array'
                         $result.Name | Should -Be "$SupportedTypeName[]"
@@ -294,12 +293,18 @@ try
                 }
             }
             Context 'When supported non-array values are entered' {
-                
-                It 'Should return a ValueType of the correct type' {
-                    foreach($SupportedTypeName in $SupportedTypeName)
-                    {
+
+                foreach($SupportedTypeName in $SupportedTypeNames)
+                {
+                    It "Should return a ValueType of type $SupportedTypeName" {
                         $result = ConvertFrom-TypeString -TypeName $SupportedTypeName -IsArray $false
-                        $result.BaseType.Name | Should -Be 'ValueType'
+                        if($SupportedTypeName -eq 'String'){
+                            $result.BaseType.Name | Should -Be 'object'
+                        }
+                        else
+                        {
+                            $result.BaseType.Name | Should -Be 'ValueType'
+                        }
                         $result.Name | Should -Be $SupportedTypeName
                     }
                 }

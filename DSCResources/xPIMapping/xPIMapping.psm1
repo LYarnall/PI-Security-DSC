@@ -34,7 +34,7 @@ function Get-TargetResource
         [System.String]
         $Name
     )
-    
+
     Write-Verbose "Getting PI Mapping $($Name)"
     $PIResource = Get-PIMappingDSC -PIDataArchive $PIDataArchive -PrincipalName $PrincipalName
     $Ensure = Get-PIResource_Ensure -PIResource $PIResource -Verbose:$VerbosePreference
@@ -52,6 +52,7 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    
     [CmdletBinding()]
     param
     (
@@ -162,7 +163,7 @@ function Test-TargetResource
 
     $PIResource = Get-TargetResource -PrincipalName $PrincipalName -PIDataArchive $PIDataArchive
 
-    return $(Compare-PIResourceGenericProperties -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
+    return $(Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
 }
 
 function Get-PIMappingDSC
@@ -183,8 +184,8 @@ function Get-PIMappingDSC
 
 function Set-PIMappingDSC
 {
-    param
-    (
+    
+    param(
         [parameter(Mandatory = $true)]
         [System.String]
         $PrincipalName,
@@ -241,6 +242,7 @@ function Add-PIMappingDSC
 
 function Remove-PIMappingDSC
 {
+    
     param(
         [System.String]
         $PIDataArchive = "localhost",
@@ -265,7 +267,7 @@ function Rename-PIMappingDSC
         $ExistingName
     )
     $Connection = Connect-PIDataArchive -PIDataArchiveMachineName $PIDataArchive
-    Rename-PIMapping -Connection $Connection -ExistingName $ExistingName -NewName $Name   
+    Rename-PIMapping -Connection $Connection -ExistingName $ExistingName -NewName $Name
 }
 
 Export-ModuleMember -Function *-TargetResource

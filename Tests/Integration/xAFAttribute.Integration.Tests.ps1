@@ -26,7 +26,7 @@ function Invoke-TestCleanup
 # Begin Testing
 try
 {
-    
+
     Invoke-TestSetup
     $resultsFolder = Join-Path -Path (Split-Path -Path $PSScriptRoot) -ChildPath "Results"
     $configurationParameters = $null
@@ -42,9 +42,9 @@ try
     . $configFile
 
     Describe "$script:DSCResourceName\Integration" {
-        
+
         $configurationName = "$($script:DSCResourceName)_Set"
-         
+
             Context "When using configuration $($configurationName) to set initial values" {
                 $OutputPath = Join-Path -Path $resultsFolder -ChildPath $configurationName
                 $configurationParameters = @{
@@ -53,7 +53,7 @@ try
                             DateTimeValue     = ([string[]](Get-Date -Year 2018 -Month 1 -Day 1 -Hour 1 -Minute 0 -Second 0))[0]
                             OutputPath        = $OutputPath
                             ConfigurationData = $ConfigurationData
-                }    
+                }
                 It 'Should compile and apply the MOF without throwing' {
                     {
                         & $configurationName @configurationParameters
@@ -67,16 +67,16 @@ try
                     { $script:currentConfiguration = Get-DscConfiguration -Verbose:$IsVerbose -ErrorAction Stop } | Should -Not -Throw
                 }
 
-                $resourceCurrentState = $script:currentConfiguration | Where-Object { 
-                    $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName 
+                $resourceCurrentState = $script:currentConfiguration | Where-Object {
+                    $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName
                 }
                 foreach($resource in $resourceCurrentState)
                 {
                     $ResourceId = $resource.ResourceId
                     $ResourceType = $ResourceId.Split('_')[2].TrimEnd('(Array)')
-                    It "Should set $ResourceId to the correct value and type" {        
+                    It "Should set $ResourceId to the correct value and type" {
                             $resource.Value | Should -BeIn $configurationParameters.Values
-                            $resource.Type | Should -Be $ResourceType 
+                            $resource.Type | Should -Be $ResourceType
                             $resource.Ensure | Should -Be "Present"
                     }
                 }
@@ -104,29 +104,29 @@ try
                     { $script:currentConfiguration = Get-DscConfiguration -Verbose:$IsVerbose -ErrorAction Stop } | Should -Not -Throw
                 }
 
-                $resourceCurrentState = $script:currentConfiguration | Where-Object { 
-                    $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName 
+                $resourceCurrentState = $script:currentConfiguration | Where-Object {
+                    $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName
                 }
                 foreach($resource in $resourceCurrentState)
                 {
                     $ResourceId = $resource.ResourceId
                     $ResourceType = $ResourceId.Split('_')[2].TrimEnd('(Array)')
-                    It "Should set $ResourceId to the correct value and type" {        
+                    It "Should set $ResourceId to the correct value and type" {
                             $resource.Value | Should -BeIn $configurationParameters.Values
-                            $resource.Type | Should -Be $ResourceType 
+                            $resource.Type | Should -Be $ResourceType
                             $resource.Ensure | Should -Be "Present"
                     }
                 }
             }
-        
+
         $configurationName = "$($script:DSCResourceName)_Remove"
-            
+
         Context "When using configuration $($configurationName)" {
             $OutputPath = Join-Path -Path $resultsFolder -ChildPath $configurationName
             $configurationParameters = @{
                         OutputPath        = $OutputPath
                         ConfigurationData = $ConfigurationData
-            }    
+            }
             It 'Should compile and apply the MOF without throwing' {
                 {
                     & $configurationName @configurationParameters
@@ -140,8 +140,8 @@ try
             }
 
             It 'Should set the resource with all the correct parameters' {
-                $resourceCurrentState = $script:currentConfiguration | Where-Object { 
-                    $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName 
+                $resourceCurrentState = $script:currentConfiguration | Where-Object {
+                    $_.ConfigurationName -eq $configurationName -and $_.CimClassName -eq $script:DSCResourceName
                 }
                 foreach($resource in $resourceCurrentState)
                 {

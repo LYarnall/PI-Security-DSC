@@ -15,9 +15,28 @@
 # *
 # ************************************************************************
 
+<#
+.SYNOPSIS
+
+Evaluate whether a resource is absent or present.
+
+.DESCRIPTION
+
+Evaluate whether a resource is absent or present.
+
+.EXAMPLE
+
+Get-PIResource_Ensure -PIResource $PIResource
+
+.PARAMETER PIResource
+
+PI Resource object to evaluate presence of.
+
+#>
 function Get-PIResource_Ensure
 {
     [CmdletBinding()]
+    [OutputType([System.String])]
     param(
         [object]
         $PIResource
@@ -30,15 +49,16 @@ function Get-PIResource_Ensure
     else
     {
         $Ensure = "Present"
-        Foreach($Property in $($PIResource | Get-Member -MemberType Property | select -ExpandProperty Name))
+        Foreach($Property in $($PIResource | Get-Member -MemberType Property | Select-Object -ExpandProperty Name))
         {
-            if($null -eq $PIResource.$Property)
+            $RawValue = $PIResource | Select-Object -ExpandProperty $Property
+            if($null -eq $RawValue)
             {
                 $Value = 'NULL'
             }
             else
             {
-                $Value = $PIResource.$Property.ToString()
+                $Value = $RawValue.ToString()
             }
             Write-Verbose "GetResult: $($Property): $($Value)."
         }
@@ -49,6 +69,29 @@ function Get-PIResource_Ensure
     return $Ensure
 }
 
+<#
+.SYNOPSIS
+
+Compare desired PI Data Archive ACL to current.
+
+.DESCRIPTION
+
+Compare desired PI Data Archive ACL to current. Implementation is
+insensitive to the order of the entries.
+
+.EXAMPLE
+
+Compare-PIDataArchiveACL -Desired $Desired -Current $PIResource
+
+.PARAMETER Desired
+
+Desired ACL for the PI Data Archive object.
+
+.PARAMETER Current
+
+Current ACL for the PI Data Archive object.
+
+#>
 function Compare-PIDataArchiveACL
 {
     [CmdletBinding()]
@@ -68,7 +111,30 @@ function Compare-PIDataArchiveACL
     return $($(Compare-Object -ReferenceObject $Desired.Split('|').Trim() -DifferenceObject $Current.Split('|').Trim()).Length -eq 0)
 }
 
-function Compare-PIResourceGenericProperties
+<#
+.SYNOPSIS
+
+Compare desired property values to current values.
+
+.DESCRIPTION
+
+Compare desired property values to currrent values. This comparison routine
+takes into account the special cases associated with the ensure parameter.
+
+.EXAMPLE
+
+Compare-PIResourcePropertyCollection -Desired $Desired -Current $PIResource
+
+.PARAMETER Desired
+
+Desired set of property values for the resource.
+
+.PARAMETER Current
+
+Current set of property values for the resource.
+
+#>
+function Compare-PIResourcePropertyCollection
 {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
@@ -90,8 +156,8 @@ function Compare-PIResourceGenericProperties
             if($Current.Keys -contains $Parameter.Key)
             {
                 # Make sure all applicable fields match.
-                Write-Verbose "Checking $($Parameter.Key) current value: ($($Current.$($Parameter.Key))) against desired value: ($($Parameter.Value))"
-                if($($Current.$($Parameter.Key)) -ne $Parameter.Value)
+                Write-Verbose "Checking $($Parameter.Key) current value: ($($Current[$Parameter.Key])) against desired value: ($($Parameter.Value))"
+                if($($Current[$Parameter.Key]) -ne $Parameter.Value)
                 {
                     Write-Verbose "Undesired property found: $($Parameter.Key)"
                     return $false
@@ -108,8 +174,29 @@ function Compare-PIResourceGenericProperties
     }
 }
 
-function Set-PIResourceParametersPreserved
+<#
+.SYNOPSIS
+
+Identify parameters not specified in the configuration.
+
+.DESCRIPTION
+
+Identify parameters not specified in the configuration.  These
+parameters should be preserved.  If these are not identified for
+preservation, we risk overwriting them with default values.
+
+.EXAMPLE
+
+Set-PIResourceSavedParameterSet -pt $pt -sp $sp -cp $cp
+
+.PARAMETER AFServer
+
+Name of the target AF Server.
+
+#>
+function Set-PIResourceSavedParameterSet
 {
+    [OutputType([System.Collections.Hashtable])]
     param(
         [parameter(Mandatory=$true)]
         [alias('pt')]
@@ -147,6 +234,25 @@ function Set-PIResourceParametersPreserved
     return $ParameterTable
 }
 
+<#
+.SYNOPSIS
+
+Connects to the AF Server using the AF SDK.
+
+.DESCRIPTION
+
+Connects to the AF Server using the AF SDK.  This function
+acts as a wrapper, which is useful for reuse and testing.
+
+.EXAMPLE
+
+Connect-AFServerUsingSDK -AFServer localhost
+
+.PARAMETER AFServer
+
+Name of the target AF Server.
+
+#>
 function Connect-AFServerUsingSDK
 {
     param(
@@ -175,6 +281,30 @@ function Connect-AFServerUsingSDK
     return $AF
 }
 
+<#
+.SYNOPSIS
+
+Outputs an AF path from an AF Element path and AF Server name.
+
+.DESCRIPTION
+
+Outputs an AF path from an AF Element path and AF Server name. The
+server is omitted from the path in resources to make the specified
+parameters consistent across resources.
+
+.EXAMPLE
+
+ConvertTo-FullAFPath -AFServer localhost -ElementPath 'OSIsoft\Machine'
+
+.PARAMETER AFServer
+
+Name of the AF Server hosting the AF Element.
+
+.PARAMETER ElementPath
+
+Path to an AF Element.
+
+#>
 function ConvertTo-FullAFPath
 {
     param(
@@ -192,6 +322,30 @@ function ConvertTo-FullAFPath
     return $FullPath
 }
 
+<#
+.SYNOPSIS
+
+Wrapper to retrieve an AF Identity using the AF SDK.
+
+.DESCRIPTION
+
+Wrapper to retrieve an AF Identity using the AF SDK.  This approach
+allows the call to be mocked for unit testing and separates the PS
+Cmdlets from the AF SDK methods and properties.
+
+.EXAMPLE
+
+Get-AFIdentity -AFServer localhost -Name PIAdministrator
+
+.PARAMETER AFServer
+
+Name of the AF Server hosting the AF Identity.
+
+.PARAMETER Name
+
+Name of the AF Identity.
+
+#>
 function Get-AFIdentityDSC
 {
     param(
@@ -213,8 +367,8 @@ function Get-AFIdentityDSC
 Export-ModuleMember -Function @(
                                     'Get-PIResource_Ensure',
                                     'Compare-PIDataArchiveACL',
-                                    'Compare-PIResourceGenericProperties',
-                                    'Set-PIResourceParametersPreserved',
+                                    'Compare-PIResourcePropertyCollection',
+                                    'Set-PIResourceSavedParameterSet',
                                     'Connect-AFServerUsingSDK',
                                     'ConvertTo-FullAFPath',
                                     'Get-AFIdentityDSC'

@@ -31,7 +31,7 @@ try
         $TargetModule = 'xPIPoint'
         $TargetObject = 'PIPoint entry'
         $testPIDataArchive = 'localhost'
-        $defaultParameters = @{                 
+        $defaultParameters = @{
                                 Name = "UnitTest"
                                 DataSecurity = "piadmins: A(r,w) | PI Users: A(r)"
                                 Ensure = "Present"
@@ -48,7 +48,7 @@ try
             }
             NotDesiredStatePresent = @{
                 Context = "When the system is not in the desired state because the $TargetObject is present"
-                InputParameters = @{                 
+                InputParameters = @{
                                         Name = "UnitTest"
                                         Ensure = "Absent"
                                         PIDataArchive = $testPIDataArchive
@@ -60,7 +60,7 @@ try
             NotDesiredStateIncorrectParameter = @{
                 Context = 'When the system is not in the desired state because a parameter is incorrect'
                 InputParameters = $defaultParameters
-                MockValues = @{                 
+                MockValues = @{
                                         Name = "UnitTest"
                                         DataSecurity = "piadmins: A(r,w) | PI Users: A(r,w)"
                                         Ensure = "Present"
@@ -98,9 +98,9 @@ try
         Mock -CommandName Connect-PIDataArchive {
             return $null
         }
-        
+
         Describe "$TargetModule\Get-TargetResource" {
-            
+
             $testCase = $testCases["DesiredState"].Clone()
             Context $testCase.Context {
                 Mock -CommandName "Get-PIPointDSC" {
@@ -108,7 +108,7 @@ try
                 }
 
                 $InputParameters = $testCase.InputParameters
-                
+
                 $result = Get-TargetResource -Name $InputParameters.Name -PIDataArchive $InputParameters.PIDataArchive
 
                 foreach($parameter in $InputParameters.GetEnumerator())
@@ -121,7 +121,7 @@ try
         }
 
         Describe "$TargetModule\Set-TargetResource" {
-            
+
             Mock -CommandName "Set-PIPointDSC" -Verifiable
 
             foreach($key in $testCases.Keys)
@@ -129,7 +129,6 @@ try
                 $testCase = @{}
                 $testCase = $testCases[$key].Clone()
                 Context $testCase.Context {
-                    $MockAccess = $testCase.MockValues.Clone()
                     Mock -CommandName "Get-PIPointDSC" {
                         Get-MockedResource $testCase.MockValues
                     }
@@ -151,14 +150,13 @@ try
                 }
             }
         }
-        
+
         Describe "$TargetModule\Test-TargetResource" {
-            
+
             foreach($key in $testCases.Keys)
             {
                 $testCase = $testCases[$key].Clone()
                 Context $testCase.Context {
-                    $MockAccess = $testCase.MockValues.Clone()
                     Mock -CommandName "Get-PIPointDSC" {
                         Get-MockedResource $testCase.MockValues
                     }
@@ -168,7 +166,7 @@ try
                         $result = Test-TargetResource @InputParameters
                         $result | Should -be $testCase.Desired
                     }
-                } 
+                }
             }
         }
     }
