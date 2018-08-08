@@ -28,7 +28,7 @@
     # RootModule = ''
 
     # Version number of this module.
-    ModuleVersion     = '2.2.0.2'
+    ModuleVersion     = '2.2.1.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -43,7 +43,7 @@
     CompanyName       = 'OSIsoft'
 
     # Copyright statement for this module
-    Copyright         = '(c) 2017 OSIsoft. All rights reserved.'
+    Copyright         = '(c) 2018 OSIsoft. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description       = 'Collection of DSC resources for PI security.'
