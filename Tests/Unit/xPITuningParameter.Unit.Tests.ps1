@@ -10,21 +10,18 @@ Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -P
 
 $TestEnvironment = Initialize-TestEnvironment -DSCModuleName $script:DSCModuleName -DSCResourceName $script:DSCResourceName
 
-function Invoke-TestSetup
-{
+function Invoke-TestSetup {
 
 }
 
-function Invoke-TestCleanup
-{
+function Invoke-TestCleanup {
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
 }
 
 #endregion HEADER
 
 # Begin Testing
-try
-{
+try {
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
@@ -32,78 +29,75 @@ try
         $TargetObject = 'PITuningParameter entry'
         $testPIDataArchive = 'localhost'
         $defaultParameters = @{
-                                Name = "UnitTestTuningParameter"
-                                Ensure = "Present"
-                                PIDataArchive = $testPIDataArchive
-                                Value = "1"
+            Name          = "UnitTestTuningParameter"
+            Ensure        = "Present"
+            PIDataArchive = $testPIDataArchive
+            Value         = "1"
         }
         $testCases = @{
-            DesiredState = @{
-                Context = 'When the system is in the desired state'
+            DesiredState                      = @{
+                Context         = 'When the system is in the desired state'
                 InputParameters = $defaultParameters
-                MockValue = @{
-                                Name = "UnitTestTuningParameter"
-                                Ensure = "Present"
-                                PIDataArchive = $testPIDataArchive
-                                Value = "1"
+                MockValue       = @{
+                    Name          = "UnitTestTuningParameter"
+                    Ensure        = "Present"
+                    PIDataArchive = $testPIDataArchive
+                    Value         = "1"
                 }
-                Desired = $true
-                Verb = "Set"
+                Desired         = $true
+                Verb            = "Set"
             }
-            NotDesiredStateAbsent = @{
-                Context = "When the system is not in the desired state because the $TargetObject is absent"
+            NotDesiredStateAbsent             = @{
+                Context         = "When the system is not in the desired state because the $TargetObject is absent"
                 InputParameters = $defaultParameters
-                MockValue = $null
-                Desired = $false
-                Verb = "Set"
+                MockValue       = $null
+                Desired         = $false
+                Verb            = "Set"
             }
-            NotDesiredStatePresent = @{
-                Context = "When the system is not in the desired state because the $TargetObject is present"
+            NotDesiredStatePresent            = @{
+                Context         = "When the system is not in the desired state because the $TargetObject is present"
                 InputParameters = @{
-                                Name = "UnitTestTuningParameter"
-                                Ensure = "Absent"
-                                PIDataArchive = $testPIDataArchive
+                    Name          = "UnitTestTuningParameter"
+                    Ensure        = "Absent"
+                    PIDataArchive = $testPIDataArchive
                 }
-                MockValue = $defaultParameters
-                Desired = $false
-                Verb = "Reset"
+                MockValue       = $defaultParameters
+                Desired         = $false
+                Verb            = "Reset"
             }
             NotDesiredStateIncorrectParameter = @{
-                Context = 'When the system is not in the desired state because a parameter is incorrect'
+                Context         = 'When the system is not in the desired state because a parameter is incorrect'
                 InputParameters = $defaultParameters
-                MockValue = @{
-                                Name = "UnitTestTuningParameter"
-                                Ensure = "Present"
-                                PIDataArchive = $testPIDataArchive
-                                Value = "99"
-                    }
-                Desired = $false
-                Verb = "Set"
-            }
-            DesiredStateAbsent = @{
-                Context = 'When the system is in the desired state because it is absent'
-                InputParameters = @{
-                                Name = "UnitTestTuningParameter"
-                                Ensure = "Absent"
-                                PIDataArchive = $testPIDataArchive
+                MockValue       = @{
+                    Name          = "UnitTestTuningParameter"
+                    Ensure        = "Present"
+                    PIDataArchive = $testPIDataArchive
+                    Value         = "99"
                 }
-                MockValue = $null
-                Desired = $true
-                Verb = "Reset"
+                Desired         = $false
+                Verb            = "Set"
+            }
+            DesiredStateAbsent                = @{
+                Context         = 'When the system is in the desired state because it is absent'
+                InputParameters = @{
+                    Name          = "UnitTestTuningParameter"
+                    Ensure        = "Absent"
+                    PIDataArchive = $testPIDataArchive
+                }
+                MockValue       = $null
+                Desired         = $true
+                Verb            = "Reset"
             }
         }
 
-        function Get-MockedResource
-        {
+        function Get-MockedResource {
             param(
                 [System.Collections.Hashtable] $InputEntry
             )
-            if($null -eq $InputEntry)
-            {
+            if ($null -eq $InputEntry) {
                 $MockResource = $null
             }
-            else
-            {
+            else {
                 $MockResource = New-Object PSCustomObject
                 $MockResource | Add-Member -MemberType NoteProperty -Name Ensure -Value $InputEntry.Ensure -TypeName string
                 $MockResource | Add-Member -MemberType NoteProperty -Name Name -Value $InputEntry.Name -TypeName string
@@ -130,16 +124,14 @@ try
                 $result = Get-TargetResource -PIDataArchive $InputParameters.PIDataArchive -Name $InputParameters.Name
 
                 It 'Should return the same values passed' {
-                    foreach($parameter in $InputParameters.GetEnumerator())
-                    {
+                    foreach ($parameter in $InputParameters.GetEnumerator()) {
                         $result[$parameter.Key] | Should -Be $parameter.Value
                     }
                 }
             }
 
-            $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
-            foreach($AbsentCase in $AbsentCases)
-            {
+            $AbsentCases = @('DesiredStateAbsent', 'NotDesiredStateAbsent')
+            foreach ($AbsentCase in $AbsentCases) {
                 $testCase = $testCases[$AbsentCase]
                 Context $testCase.Context {
                     Mock -CommandName "Get-$CommandNoun" {
@@ -162,8 +154,7 @@ try
             Mock -CommandName "Reset-$CommandNoun" -Verifiable
             Mock -CommandName "Set-$CommandNoun" -Verifiable
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName "Get-$CommandNoun" {
@@ -182,8 +173,7 @@ try
 
         Describe "$TargetModule\Test-TargetResource" {
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName "Get-$CommandNoun" {
@@ -200,7 +190,6 @@ try
         }
     }
 }
-finally
-{
+finally {
     Invoke-TestCleanup
 }

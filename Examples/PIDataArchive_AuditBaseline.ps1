@@ -72,103 +72,94 @@ Configuration PIDataArchive_AuditBaseline
         [Int32]
         $DaysToAllowEdit = 365,
 
-        [ValidateRange(60,300)]
+        [ValidateRange(60, 300)]
         [Int32]
-        $MaxQueryExecutionSeconds=260,
+        $MaxQueryExecutionSeconds = 260,
 
-        [ValidateSet('0','1')]
+        [ValidateSet('0', '1')]
         [Int32]
-        $AutoTrustConfig=0,
+        $AutoTrustConfig = 0,
 
         [String[]]
-        $PIFirewallHostmasks = @('10.*.*.*','192.168.*.*'),
+        $PIFirewallHostmasks = @('10.*.*.*', '192.168.*.*'),
 
-        [ValidateSet('3','19','51')]
+        [ValidateSet('3', '19', '51')]
         [Int32]
-        $AuthenticationPolicy='3'
-         )
+        $AuthenticationPolicy = '3'
+    )
 
     Import-DscResource -ModuleName PISecurityDSC
 
     Node $NodeName
     {
         # AU20001 - Disable PIWorld
-        PIIdentity "AU20001: PIWorld usage"
-        {
-            Name = 'PIWorld'
-            IsEnabled = $false
+        PIIdentity "AU20001: PIWorld usage" {
+            Name             = 'PIWorld'
+            IsEnabled        = $false
             AllowUseInTrusts = $false
-            Ensure = "Present"
-            PIDataArchive = $NodeName
+            Ensure           = "Present"
+            PIDataArchive    = $NodeName
         }
 
         # AU20002 - Restrict use of the piadmin superuser
-        PIIdentity 'AU20002: piadmin usage'
-        {
-            Name = "piadmin"
-            AllowUseInTrusts = $false
+        PIIdentity 'AU20002: piadmin usage' {
+            Name               = "piadmin"
+            AllowUseInTrusts   = $false
             AllowUseInMappings = $false
-            Ensure = "Present"
-            PIDataArchive = $NodeName
+            Ensure             = "Present"
+            PIDataArchive      = $NodeName
         }
 
         # AU20004 - Specify EditDays
-        PITuningParameter 'AU20004: EditDays'
-        {
-            Name = "EditDays"
-            Value = $DaysToAllowEdit
-            Ensure = "Present"
+        PITuningParameter 'AU20004: EditDays' {
+            Name          = "EditDays"
+            Value         = $DaysToAllowEdit
+            Ensure        = "Present"
             PIDataArchive = $NodeName
         }
 
         # AU20005 - Auto Trust configuration
-        PITuningParameter 'AU20005: AutoTrustConfig'
-        {
-            Name = "AutoTrustConfig"
-            Value = $AutoTrustConfig
-            Ensure = "Present"
+        PITuningParameter 'AU20005: AutoTrustConfig' {
+            Name          = "AutoTrustConfig"
+            Value         = $AutoTrustConfig
+            Ensure        = "Present"
             PIDataArchive = $NodeName
         }
 
         # AU20006 - Expensive query protection
-        PITuningParameter 'AU20006: Archive_MaxQueryExecutionSec'
-        {
-            Name = "Archive_MaxQueryExecutionSec"
-            Value = $MaxQueryExecutionSeconds
-            Ensure = "Present"
+        PITuningParameter 'AU20006: Archive_MaxQueryExecutionSec' {
+            Name          = "Archive_MaxQueryExecutionSec"
+            Value         = $MaxQueryExecutionSeconds
+            Ensure        = "Present"
             PIDataArchive = $NodeName
         }
 
         # AU20007 - Explicit Login Disabled
-        PITuningParameter 'AU20007: Server_AuthenticationPolicy'
-        {
-            Name = "Server_AuthenticationPolicy"
-            Value = $AuthenticationPolicy
-            Ensure = "Present"
+        PITuningParameter 'AU20007: Server_AuthenticationPolicy' {
+            Name          = "Server_AuthenticationPolicy"
+            Value         = $AuthenticationPolicy
+            Ensure        = "Present"
             PIDataArchive = $NodeName
         }
 
         # AU20011 - PI Firewall
         $i = 0
-        foreach($Hostmask in $PIFirewallHostmasks)
-        {
-            PIFirewall "AU20011 - PIFirewall Add $i"
-            {
-                Hostmask = $Hostmask
-                Ensure = "Present"
-                Value = "Allow"
+        foreach ($Hostmask in $PIFirewallHostmasks) {
+            PIFirewall "AU20011 - PIFirewall Add $i" {
+                Hostmask      = $Hostmask
+                Ensure        = "Present"
+                Value         = "Allow"
                 PIDataArchive = $NodeName
             }
             $i++
         }
 
-        PIFirewall "AU20011 - PIFirewall Remove Default"
-        {
-            Hostmask = '*.*.*.*'
-            Ensure = "Absent"
-            Value = "Allow"
+        PIFirewall "AU20011 - PIFirewall Remove Default" {
+            Hostmask      = '*.*.*.*'
+            Ensure        = "Absent"
+            Value         = "Allow"
             PIDataArchive = $NodeName
-            DependsOn = "[PIFirewall]AU20011 - PIFirewall Add 0"
+            DependsOn     = "[PIFirewall]AU20011 - PIFirewall Add 0"
         }
     }
 }

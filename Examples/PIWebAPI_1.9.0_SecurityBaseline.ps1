@@ -51,19 +51,19 @@ Configuration PIWebAPI_1.9.0_SecurityBaseline
 {
     param
     (
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [string]
         $PIWebAPINodeName,
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [string]
         $AFServer,
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [string]
         $PIWebAPIConfigElementPath,
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [string]
         $CorsOrigins
     )
@@ -72,76 +72,73 @@ Configuration PIWebAPI_1.9.0_SecurityBaseline
 
     $configAttributes = @(
         @{
-            Name='AuthenticationMethods';
-            Type='String';
-            IsArray=$true;
-            Value=@('Kerberos')
+            Name    = 'AuthenticationMethods';
+            Type    = 'String';
+            IsArray = $true;
+            Value   = @('Kerberos')
         },
         @{
-            Name='CorsExposedHeaders';
-            Type='String';
-            IsArray=$false;
-            Value='Allow,Content-Encoding,Content-Length,Date,Location';
+            Name    = 'CorsExposedHeaders';
+            Type    = 'String';
+            IsArray = $false;
+            Value   = 'Allow,Content-Encoding,Content-Length,Date,Location';
         },
         @{
-            Name='CorsHeaders';
-            Type='String';
-            IsArray=$false;
-            Value='content-type,requestverificationtoken,x-requested-with';
+            Name    = 'CorsHeaders';
+            Type    = 'String';
+            IsArray = $false;
+            Value   = 'content-type,requestverificationtoken,x-requested-with';
         },
         @{
-            Name='CorsMethods';
-            Type='String';
-            IsArray=$false;
-            Value='GET,OPTIONS,POST';
+            Name    = 'CorsMethods';
+            Type    = 'String';
+            IsArray = $false;
+            Value   = 'GET,OPTIONS,POST';
         },
         @{
-            Name='CorsOrigins';
-            Type='String';
-            IsArray=$false;
-            Value=$CorsOrigins;
+            Name    = 'CorsOrigins';
+            Type    = 'String';
+            IsArray = $false;
+            Value   = $CorsOrigins;
         },
         @{
-            Name='XFrameOptions';
-            Type='String';
-            IsArray=$false;
-            Value='SAMEORIGIN';
+            Name    = 'XFrameOptions';
+            Type    = 'String';
+            IsArray = $false;
+            Value   = 'SAMEORIGIN';
         },
         @{
-            Name='CorsSupportsCredentials';
-            Type='Boolean';
-            IsArray=$false;
-            Value='True';
+            Name    = 'CorsSupportsCredentials';
+            Type    = 'Boolean';
+            IsArray = $false;
+            Value   = 'True';
         },
         @{
-            Name='DisableWrites';
-            Type='Boolean';
-            IsArray=$false;
-            Value='False';
+            Name    = 'DisableWrites';
+            Type    = 'Boolean';
+            IsArray = $false;
+            Value   = 'False';
         },
         @{
-            Name='EnableCSRFDefense';
-            Type='Boolean';
-            IsArray=$false;
-            Value='True';
+            Name    = 'EnableCSRFDefense';
+            Type    = 'Boolean';
+            IsArray = $false;
+            Value   = 'True';
         }
     )
 
     Node $PIWebAPINodeName
     {
-        foreach($attribute in $configAttributes.GetEnumerator())
-        {
-            if($null -ne $attribute.Value)
-            {
-                AFAttribute $attribute.Name
-                {
-                    AFServer = $AFServer
+        foreach ($attribute in $configAttributes.GetEnumerator()) {
+            if ($null -ne $attribute.Value) {
+                AFAttribute $attribute.Name {
+                    AFServer    = $AFServer
                     ElementPath = $PIWebAPIConfigElementPath
-                    Name = $attribute.Name
-                    Type = $attribute.Type
-                    IsArray = $attribute.IsArray
-                    Value = $attribute.Value
-                    Ensure = 'Present'
+                    Name        = $attribute.Name
+                    Type        = $attribute.Type
+                    IsArray     = $attribute.IsArray
+                    Value       = $attribute.Value
+                    Ensure      = 'Present'
                 }
             }
         }

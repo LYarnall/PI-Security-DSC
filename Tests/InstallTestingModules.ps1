@@ -23,63 +23,54 @@ $testingModules = @( 'PSScriptAnalyzer', 'Pester' )
 
 #region - Internal Helper Functions
 
-function InstallTestingModule ($moduleName)
-{
-	$moduleObj = $null
-	$moduleObj = Get-InstalledModule -Name $moduleName -ErrorAction 'SilentlyContinue'
-	if($null -eq $moduleObj)
-	{
-		# Install the PSScriptAnalyzer module for all users on this computer.
-		Install-Module -Name $moduleName -Repository 'PSGallery' -Scope 'AllUsers'
-	}
-	else
-	{
-		$msg = '{0} module {1} is already installed' -f $moduleName, $moduleObj.Version.ToString()
-		Write-Output $msg
-	}
+function InstallTestingModule ($moduleName) {
+    $moduleObj = $null
+    $moduleObj = Get-InstalledModule -Name $moduleName -ErrorAction 'SilentlyContinue'
+    if ($null -eq $moduleObj) {
+        # Install the PSScriptAnalyzer module for all users on this computer.
+        Install-Module -Name $moduleName -Repository 'PSGallery' -Scope 'AllUsers'
+    }
+    else {
+        $msg = '{0} module {1} is already installed' -f $moduleName, $moduleObj.Version.ToString()
+        Write-Output $msg
+    }
 }
 
 #endregion
 
 #region - Main routine
 
-try
-{
-	# Try to import PowerShellGet module.
-	$moduleObj = $null
-	$moduleObj = Import-Module 'PowerShellGet' -PassThru
-	if($null -eq $moduleObj)
-	{
-		$msg = 'PowerShellGet module is not installed on this machine'
-		Throw $msg
-	}
+try {
+    # Try to import PowerShellGet module.
+    $moduleObj = $null
+    $moduleObj = Import-Module 'PowerShellGet' -PassThru
+    if ($null -eq $moduleObj) {
+        $msg = 'PowerShellGet module is not installed on this machine'
+        Throw $msg
+    }
 
-	# Try to retrieve the PSGallery repository.
-	$repositoryObj = $null
-	$repositoryObj = Get-PSRepository -Name 'PSGallery'
+    # Try to retrieve the PSGallery repository.
+    $repositoryObj = $null
+    $repositoryObj = Get-PSRepository -Name 'PSGallery'
 
-	if($null -eq $repositoryObj)
-	{
-		# Register the PowerShell Gallery.
-		Register-PSRepository -Name 'PSGallery' -SourceLocation 'https://www.powershellgallery.com/api/v2/' -InstallationPolicy 'Trusted'
-	}
-	else
-	{
-		# Validate the PSGallery repository.
-		if($repositoryObj.InstallationPolicy -notmatch '^trusted$')
-		{
-			$msg = 'The PSGallery is not trusted'
-			Throw $msg
-		}
+    if ($null -eq $repositoryObj) {
+        # Register the PowerShell Gallery.
+        Register-PSRepository -Name 'PSGallery' -SourceLocation 'https://www.powershellgallery.com/api/v2/' -InstallationPolicy 'Trusted'
+    }
+    else {
+        # Validate the PSGallery repository.
+        if ($repositoryObj.InstallationPolicy -notmatch '^trusted$') {
+            $msg = 'The PSGallery is not trusted'
+            Throw $msg
+        }
 
-		if($repositoryObj.SourceLocation -notmatch '^https://www\.powershellgallery\.com/api/v2/$')
-		{
-			$msg = 'The PSGallery location is incorrect'
-			Throw $msg
-		}
-	}
+        if ($repositoryObj.SourceLocation -notmatch '^https://www\.powershellgallery\.com/api/v2/$') {
+            $msg = 'The PSGallery location is incorrect'
+            Throw $msg
+        }
+    }
 
-	foreach ($testingModule in $testingModules) { InstallTestingModule $testingModule }
+    foreach ($testingModule in $testingModules) { InstallTestingModule $testingModule }
 
 }
 catch

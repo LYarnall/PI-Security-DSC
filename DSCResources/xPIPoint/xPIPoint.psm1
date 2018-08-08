@@ -16,10 +16,9 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -36,16 +35,15 @@ function Get-TargetResource
     $Ensure = Get-PIResource_Ensure -PIResource $PIResource -Verbose:$VerbosePreference
 
     return @{
-                PtSecurity = $PIResource.Attributes.ptsecurity
-                Name = $Name
-                Ensure = $Ensure
-                DataSecurity = $PIResource.Attributes.datasecurity
-                PIDataArchive = $PIDataArchive
-            }
+        PtSecurity    = $PIResource.Attributes.ptsecurity
+        Name          = $Name
+        Ensure        = $Ensure
+        DataSecurity  = $PIResource.Attributes.datasecurity
+        PIDataArchive = $PIDataArchive
+    }
 }
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
@@ -56,7 +54,7 @@ function Set-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
@@ -67,15 +65,13 @@ function Set-TargetResource
         $PIDataArchive = "localhost"
     )
 
-    if($Ensure -eq 'Absent')
-    {
+    if ($Ensure -eq 'Absent') {
         throw "Removal of PI Points not supported."
     }
     Set-PIPointDSC -PIDataArchive $PIDataArchive -Name $Name -PtSecurity $PtSecurity -DataSecurity $DataSecurity
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -87,7 +83,7 @@ function Test-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
@@ -100,21 +96,18 @@ function Test-TargetResource
 
     $PIResource = Get-TargetResource -Name $Name -PIDataArchive $PIDataArchive
 
-    if($PIResource.Ensure -eq 'Present' -and $Ensure -eq 'Present')
-    {
+    if ($PIResource.Ensure -eq 'Present' -and $Ensure -eq 'Present') {
         $PtSecurityMatch = Compare-PIDataArchiveACL -Desired $PtSecurity -Current $PIResource.PtSecurity
         $DataSecurityMatch = Compare-PIDataArchiveACL -Desired $DataSecurity -Current $PIResource.DataSecurity
 
         return $($PtSecurityMatch -and $DataSecurityMatch)
     }
-    else
-    {
+    else {
         return $($PIResource.Ensure -eq 'Absent' -and $Ensure -eq 'Absent')
     }
 }
 
-function Get-PIPointDSC
-{
+function Get-PIPointDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -124,12 +117,11 @@ function Get-PIPointDSC
         $PIDataArchive = "localhost"
     )
     $Connection = Connect-PIDataArchive -PIDataArchiveMachineName $PIDataArchive
-    $PIResource = Get-PIPoint -Connection $Connection -Name $Name  -Attributes @('ptsecurity','datasecurity')
+    $PIResource = Get-PIPoint -Connection $Connection -Name $Name  -Attributes @('ptsecurity', 'datasecurity')
     return $PIResource
 }
 
-function Set-PIPointDSC
-{
+function Set-PIPointDSC {
     param(
         [System.String]
         $PtSecurity,
@@ -145,7 +137,7 @@ function Set-PIPointDSC
         $PIDataArchive = "localhost"
     )
     $Connection = Connect-PIDataArchive -PIDataArchiveMachineName $PIDataArchive
-    Set-PIPoint -Connection $Connection -Name $Name -Attributes @{ ptsecurity=$PtSecurity; datasecurity=$DataSecurity }
+    Set-PIPoint -Connection $Connection -Name $Name -Attributes @{ ptsecurity = $PtSecurity; datasecurity = $DataSecurity }
 }
 
 Export-ModuleMember -Function *-TargetResource

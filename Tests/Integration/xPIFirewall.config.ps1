@@ -13,31 +13,29 @@ Configuration xPIFirewall_Set
         [System.String] $Value
     )
 
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        PIFirewall xPIFirewall_SetIntegration
-        {
-            Hostmask = $Node.Hostmask
-            Ensure = "Present"
+        PIFirewall xPIFirewall_SetIntegration {
+            Hostmask      = $Node.Hostmask
+            Ensure        = "Present"
             PIDataArchive = $Node.NodeName
-            Value = $Value
-        } 
+            Value         = $Value
+        }
     }
 }
 
 Configuration xPIFirewall_Remove
 {
     param()
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        PIFirewall xPIFirewall_RemoveIntegration
-        {
-            Hostmask = $Node.Hostmask
-            Ensure = "Absent"
+        PIFirewall xPIFirewall_RemoveIntegration {
+            Hostmask      = $Node.Hostmask
+            Ensure        = "Absent"
             PIDataArchive = $Node.NodeName
         }
     }

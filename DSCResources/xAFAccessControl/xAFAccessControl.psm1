@@ -16,15 +16,14 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [ValidateSet('AFSecurityItem','AFElement')]
+        [ValidateSet('AFSecurityItem', 'AFElement')]
         [parameter(Mandatory = $true)]
         [System.String]
         $Type,
@@ -37,10 +36,10 @@ function Get-TargetResource
         [System.String]
         $Path,
 
-        [ValidateSet('Allow','Deny')]
+        [ValidateSet('Allow', 'Deny')]
         [parameter(Mandatory = $false)]
         [System.String]
-        $Action='Allow',
+        $Action = 'Allow',
 
         [parameter(Mandatory = $true)]
         [System.String]
@@ -48,49 +47,44 @@ function Get-TargetResource
     )
 
     $AFSecurityObject = Get-AFSecurityObject -Type $Type -Path $Path -AFServer $AFServer
-    switch($Action)
-    {
-        'Deny'  { $AllowAccess = $false; break }
+    switch ($Action) {
+        'Deny' { $AllowAccess = $false; break }
         'Allow' { $AllowAccess = $true; break }
     }
 
     $AFSecurityObjectEntries = Get-AFSecurityObjectEntry $AFSecurityObject
-    if($null -ne $AFSecurityObjectEntries)
-    {
+    if ($null -ne $AFSecurityObjectEntries) {
         $Access = $AFSecurityObjectEntries | Where-Object { $_.Identity.Name -eq $Identity -and $_.AllowAccess -eq $AllowAccess } | Select-Object -ExpandProperty Rights
     }
-    if([System.String]::IsNullOrEmpty($Access))
-    {
+    if ([System.String]::IsNullOrEmpty($Access)) {
         $Access = "None"
         $Ensure = "Absent"
     }
-    else
-    {
+    else {
         $Ensure = "Present"
     }
     Write-Verbose "Access for $Identity on $Type\$Path is $Ensure ($Access)"
 
     $returnValue = @{
-        Ensure = $Ensure
-        Type = $Type
+        Ensure   = $Ensure
+        Type     = $Type
         AFServer = $AFServer
-        Path = $Path
+        Path     = $Path
         Identity = $Identity
-        Access = $Access
-        Action = $Action
+        Access   = $Access
+        Action   = $Action
     }
 
     $returnValue
 }
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param(
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
-        [ValidateSet('AFSecurityItem','AFElement')]
+        [ValidateSet('AFSecurityItem', 'AFElement')]
         [parameter(Mandatory = $true)]
         [System.String]
         $Type,
@@ -110,13 +104,12 @@ function Set-TargetResource
         [System.String]
         $Access,
 
-        [ValidateSet("Allow","Deny")]
+        [ValidateSet("Allow", "Deny")]
         [System.String]
         $Action = "Allow"
     )
 
-    if(!$(Test-TargetResource -Ensure $Ensure -Type $Type -AFServer $AFServer -Path $Path -Identity $Identity -Access $Access -Action $Action -Verbose:$VerbosePreference))
-    {
+    if (!$(Test-TargetResource -Ensure $Ensure -Type $Type -AFServer $AFServer -Path $Path -Identity $Identity -Access $Access -Action $Action -Verbose:$VerbosePreference)) {
         $AF = Connect-AFServerUsingSDK -AFServer $AFServer
 
         $PISystem = $AF.PISystem
@@ -126,24 +119,20 @@ function Set-TargetResource
         $TargetItems.Add($AFSecurityObject) | Out-Null
         $ApplyToChildren = $false
 
-        if($Ensure -eq "Absent")
-        {
+        if ($Ensure -eq "Absent") {
             Write-Verbose "Removing access for $Identity"
             Remove-AFIdentityAccess $PISystem $AFSecurityIdentity $TargetItems $ApplyToChildren
         }
-        else
-        {
+        else {
             Write-Verbose "Updating access for $Identity"
             $SpecifiedRights = ConvertTo-CanonicalAFSecurityRight -Access $Access
             $Operation = [OSIsoft.AF.AFSecurityOperation]::Replace
-            if($Action -eq "Allow")
-            {
+            if ($Action -eq "Allow") {
                 Write-Verbose "Updating access to allow: $SpecifiedRights"
                 $RightsToAllow = $SpecifiedRights
                 $RightsToDeny = [OSIsoft.AF.AFSecurityRights]::None
             }
-            else
-            {
+            else {
                 Write-Verbose "Updating access to deny: $SpecifiedRights"
                 $RightsToAllow = [OSIsoft.AF.AFSecurityRights]::None
                 $RightsToDeny = $SpecifiedRights
@@ -154,17 +143,16 @@ function Set-TargetResource
 }
 
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
-        [ValidateSet('AFSecurityItem','AFElement')]
+        [ValidateSet('AFSecurityItem', 'AFElement')]
         [parameter(Mandatory = $true)]
         [System.String]
         $Type,
@@ -184,7 +172,7 @@ function Test-TargetResource
         [System.String]
         $Access,
 
-        [ValidateSet("Allow","Deny")]
+        [ValidateSet("Allow", "Deny")]
         [System.String]
         $Action = "Allow"
     )
@@ -200,49 +188,43 @@ function Test-TargetResource
     return $IsEnsured -and $IsEquivalentAccess
 }
 
-function Add-AFIdentityAccess
-{
+function Add-AFIdentityAccess {
     param($PISystem, $AFSecurityIdentity, $TargetItems, $RightsToAllow, $RightsToDeny, $Operation, $ApplyToChildren)
     [OSIsoft.AF.AFSecurity]::AddIdentity($PISystem, $AFSecurityIdentity, $TargetItems, $RightsToAllow, $RightsToDeny, $Operation, $ApplyToChildren)
 }
 
-function Remove-AFIdentityAccess
-{
+function Remove-AFIdentityAccess {
     param($PISystem, $AFSecurityIdentity, $TargetItems, $ApplyToChildren)
     [OSIsoft.AF.AFSecurity]::RemoveIdentity($PISystem, $AFSecurityIdentity, $TargetItems, $ApplyToChildren)
 }
 
-function Get-AFSecurityObject
-{
+function Get-AFSecurityObject {
     param(
-            [ValidateSet('AFSecurityItem','AFElement')]
-            [parameter(Mandatory = $true)]
-            [System.String]
-            $Type,
+        [ValidateSet('AFSecurityItem', 'AFElement')]
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $Type,
 
-            [parameter(Mandatory = $true)]
-            [System.String]
-            $AFServer,
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $AFServer,
 
-            [parameter(Mandatory = $true)]
-            [System.String]
-            $Path
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $Path
     )
 
     $AF = Connect-AFServerUsingSDK $AFServer
 
-    if($Type -eq "AFSecurityItem")
-    {
+    if ($Type -eq "AFSecurityItem") {
         # A slash indicates "Database\Collection"
-        if($Path.IndexOf('\') -ne -1)
-        {
+        if ($Path.IndexOf('\') -ne -1) {
             $Tokens = $Path.Split('\')
             $Database = $Tokens[0]
             $Name = $Tokens[1]
             $AFObject = $AF.Databases[$Database]
         }
-        else
-        {
+        else {
             $Name = $Path
             $AFObject = $AF
         }
@@ -250,8 +232,7 @@ function Get-AFSecurityObject
         $Name = ConvertTo-CanonicalAFSecurityItem $Name
         $AFSecurityObject = $AFObject.GetSecurity($Name)
     }
-    elseif($Type -eq "AFElement")
-    {
+    elseif ($Type -eq "AFElement") {
         $ElementPath = ConvertTo-FullAFPath -AFServer $AFServer -ElementPath $Path
         $tempList = New-Object "System.Collections.Generic.List[string]"
         $tempList.Add($ElementPath) | Out-Null
@@ -265,8 +246,7 @@ function Get-AFSecurityObject
     return $AFSecurityObject
 }
 
-function Get-AFSecurityObjectEntry
-{
+function Get-AFSecurityObjectEntry {
     param(
         [System.Object] $AFSecurityObject
     )
@@ -275,10 +255,9 @@ function Get-AFSecurityObjectEntry
     return $AFSecurityEntries
 }
 
-function ConvertTo-CanonicalAFSecurityItem
-{
+function ConvertTo-CanonicalAFSecurityItem {
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [string]
         $AFSecurityItem
     )
@@ -318,29 +297,25 @@ function ConvertTo-CanonicalAFSecurityItem
         "Table Connections"              = "TableConnection"
     }
 
-    if($AFSecurityItem -in [System.Enum]::GetNames([OSIsoft.AF.AFSecurityItem]))
-    {
+    if ($AFSecurityItem -in [System.Enum]::GetNames([OSIsoft.AF.AFSecurityItem])) {
         $CanonicalAFSecurityItem = $AFSecurityItem
     }
-    elseif($AFSecurityItemMapping.ContainsKey($AFSecurityItem))
-    {
+    elseif ($AFSecurityItemMapping.ContainsKey($AFSecurityItem)) {
         $CanonicalAFSecurityItem = $AFSecurityItemMapping[$AFSecurityItem]
     }
-    else
-    {
+    else {
         throw "Invalid AFSecurityItem specified: $AFSecurityItem"
     }
 
     return $CanonicalAFSecurityItem
 }
 
-function ConvertTo-CanonicalAFSecurityRight
-{
+function ConvertTo-CanonicalAFSecurityRight {
     param(
-            [Parameter(Mandatory=$false)]
-            [string]
-            $Access
-         )
+        [Parameter(Mandatory = $false)]
+        [string]
+        $Access
+    )
 
     $AFSecurityRightMapping = @{
         "Write Data"       = "WriteData"
@@ -360,27 +335,21 @@ function ConvertTo-CanonicalAFSecurityRight
         "an"               = "Annotate"
     }
 
-    if([System.String]::IsNullOrEmpty($Access))
-    {
+    if ([System.String]::IsNullOrEmpty($Access)) {
         $CanonicalAFSecurityRight = [OSIsoft.AF.AFSecurityRights]::None
     }
-    else
-    {
+    else {
         $AFSecurityRightArray = @()
         $AFSecurityRightArray = $Access.Split(',').Trim()
         $CanonicalStringArray = @()
-        foreach($AFSecurityRight in $AFSecurityRightArray)
-        {
-            if($AFSecurityRight -in [System.Enum]::GetNames([OSIsoft.AF.AFSecurityRights]))
-            {
+        foreach ($AFSecurityRight in $AFSecurityRightArray) {
+            if ($AFSecurityRight -in [System.Enum]::GetNames([OSIsoft.AF.AFSecurityRights])) {
                 $CanonicalStringArray += $AFSecurityRight
             }
-            elseif($AFSecurityRightMapping.ContainsKey($AFSecurityRight))
-            {
+            elseif ($AFSecurityRightMapping.ContainsKey($AFSecurityRight)) {
                 $CanonicalStringArray += $AFSecurityRightMapping[$AFSecurityRight]
             }
-            else
-            {
+            else {
                 throw "Invalid AFSecurityRight specified: $AFSecurityRight"
             }
         }
@@ -388,14 +357,12 @@ function ConvertTo-CanonicalAFSecurityRight
         $IsReadWriteConflict = ($CanonicalString -contains "Read" -or $CanonicalString -contains "Write") -and $CanonicalString -contains "ReadWrite"
         $IsReadWriteDataConflict = ($CanonicalString -contains "ReadData" -or $CanonicalString -contains "WriteData") -and $CanonicalString -contains "ReadWriteData"
 
-        if($IsReadWriteConflict -or $IsReadWriteDataConflict)
-        {
+        if ($IsReadWriteConflict -or $IsReadWriteDataConflict) {
             throw "Conflict identified. Redundant rights specified."
         }
 
         $CanonicalAFSecurityRight = [OSIsoft.AF.AFSecurityRights]::None
-        foreach($CanonicalString in $CanonicalStringArray)
-        {
+        foreach ($CanonicalString in $CanonicalStringArray) {
             $CanonicalAFSecurityRight += [OSIsoft.AF.AFSecurityRights]$CanonicalString
         }
     }

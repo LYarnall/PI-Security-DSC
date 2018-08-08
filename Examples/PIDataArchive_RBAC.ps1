@@ -83,7 +83,7 @@ Configuration PIDataArchive_RBAC
         $NodeName = 'localhost',
 
         [String[]]
-        $PIAdministratorsPrincipals = @('BUILTIN\Administrators','NT Authority\System'),
+        $PIAdministratorsPrincipals = @('BUILTIN\Administrators', 'NT Authority\System'),
 
         [String[]]
         $PIUsersPrincipals = '\Everyone',
@@ -112,221 +112,199 @@ Configuration PIDataArchive_RBAC
         [Boolean]
         $PILegacyAppsRequired = $false
 
-         )
+    )
 
     Import-DscResource -ModuleName PISecurityDSC
 
     Node $NodeName
     {
         #region Lists of security objects
-        $PIDatabases = @('PIDBSEC','PIPOINT','PIUSER','PIDS','PIReplication','PIARCADMIN','PIARCDATA','PIBACKUP','PIAUDIT','PIMSGSS','PITUNING','PITRUST','PIMAPPING')
-        if($PIBatchRequired)
-        {
-            $PIDatabases += @('PIHeadingSets','PIBatch','PICampaign','PITransferRecords','PIBATCHLEGACY')
+        $PIDatabases = @('PIDBSEC', 'PIPOINT', 'PIUSER', 'PIDS', 'PIReplication', 'PIARCADMIN', 'PIARCDATA', 'PIBACKUP', 'PIAUDIT', 'PIMSGSS', 'PITUNING', 'PITRUST', 'PIMAPPING')
+        if ($PIBatchRequired) {
+            $PIDatabases += @('PIHeadingSets', 'PIBatch', 'PICampaign', 'PITransferRecords', 'PIBATCHLEGACY')
         }
-        if($PILegacyAppsRequired)
-        {
-            $PIDatabases += @('PIAFLINK','PIMODULES')
+        if ($PILegacyAppsRequired) {
+            $PIDatabases += @('PIAFLINK', 'PIMODULES')
         }
-        $DefaultPIPoints = @('SINUSOID','SINUSOIDU','CDT158','CDM158','CDEP158','BA:TEMP.1','BA:LEVEL.1','BA:CONC.1','BA:ACTIVE.1','BA:PHASE.1')
+        $DefaultPIPoints = @('SINUSOID', 'SINUSOIDU', 'CDT158', 'CDM158', 'CDEP158', 'BA:TEMP.1', 'BA:LEVEL.1', 'BA:CONC.1', 'BA:ACTIVE.1', 'BA:PHASE.1')
         #endregion
 
         #region Role based rules for Identities
         $Identities = @(
-                            @{
-                                Name='piadmins'
-                                Description='Identity for administrative users of PI'
-                                Mappings=$PIAdministratorsPrincipals
-                                DatabaseAccess = @{ ReadWrite=$PIDatabases }
-                                PointAccess = 'ReadWrite'
-                                DataAccess = 'ReadWrite'
-                            },
-                            @{
-                                Name='PI Buffers'
-                                Description='Identity for PI Buffer Subsystem and PI Buffer Server'
-                                Mappings=$PIBuffersPrincipals
-                                DatabaseAccess = @{ ReadWrite='PIPOINT' }
-                                PointAccess = 'ReadWrite'
-                                DataAccess = 'ReadWrite'
-                            },
-                            @{
-                                Name='PI Interfaces'
-                                Description='Identity for PI Interfaces'
-                                Mappings=$PIInterfacesName
-                                DatabaseAccess = @{ Read='PIPOINT' }
-                                PointAccess = 'Read'
-                                DataAccess = 'Read'
-                            },
-                            @{
-                                Name='PI Users'
-                                Description='Identity for the Read-only users'
-                                Mappings=$PIUsersPrincipals
-                                DatabaseAccess = @{ Read=@('PIDBSEC','PIPOINT','PIUSER','PIDS','PIModules','PIHeadingSets','PIBatch','PICampaign','PITransferRecords','PIBATCHLEGACY') }
-                                PointAccess = 'Read'
-                                DataAccess = 'Read'
-                            },
-                            @{
-                                Name='PI Points and Analysis Creator'
-                                Description='Identity for PIACEService, PIAFService and users that can create and edit PI Points'
-                                Mappings=$PIPointsAnalysisCreatorPrincipals
-                                DatabaseAccess = @{ ReadWrite=@('PIPOINT','PIDS') }
-                                PointAccess = 'ReadWrite'
-                                DataAccess = 'ReadWrite'
-                            }
-                            @{
-                                Name='PI Web Apps'
-                                Description='Identity for PI Vision, PI Web API, and PI Web API Crawler'
-                                Mappings=$PIWebAppsPrincipals
-                                DatabaseAccess = @{ Read=@('PIDBSEC','PIPOINT','PIUSER','PIMAPPING') }
-                                PointAccess = 'Read'
-                                DataAccess = 'Read'
-                            },
-                            @{
-                                Name='PI Connector Relays'
-                                Description='Identity for PI Connector Relays'
-                                Mappings=$PIConnectorRelaysPrincipals
-                                DatabaseAccess = @{ 
-                                                    Read='PIUSER'
-                                                    ReadWrite=@('PIPOINT','PIDS')
-                                                 }
-                                PointAccess = 'ReadWrite'
-                                DataAccess = 'ReadWrite'
-                            },
-                            @{
-                                Name='PI Data Collection Managers'
-                                Description='Identity for PI Data Collection Managers'
-                                Mappings=$PIDataCollectionManagersPrincipals
-                                DatabaseAccess = @{ Read=@('PIDBSEC','PIDS','PIPOINT','PIREPLICATION','PIUSER') }
-                                PointAccess = 'Read'
-                                DataAccess = 'Read'
-                            }
-                          )
+            @{
+                Name           = 'piadmins'
+                Description    = 'Identity for administrative users of PI'
+                Mappings       = $PIAdministratorsPrincipals
+                DatabaseAccess = @{ ReadWrite = $PIDatabases }
+                PointAccess    = 'ReadWrite'
+                DataAccess     = 'ReadWrite'
+            },
+            @{
+                Name           = 'PI Buffers'
+                Description    = 'Identity for PI Buffer Subsystem and PI Buffer Server'
+                Mappings       = $PIBuffersPrincipals
+                DatabaseAccess = @{ ReadWrite = 'PIPOINT' }
+                PointAccess    = 'ReadWrite'
+                DataAccess     = 'ReadWrite'
+            },
+            @{
+                Name           = 'PI Interfaces'
+                Description    = 'Identity for PI Interfaces'
+                Mappings       = $PIInterfacesName
+                DatabaseAccess = @{ Read = 'PIPOINT' }
+                PointAccess    = 'Read'
+                DataAccess     = 'Read'
+            },
+            @{
+                Name           = 'PI Users'
+                Description    = 'Identity for the Read-only users'
+                Mappings       = $PIUsersPrincipals
+                DatabaseAccess = @{ Read = @('PIDBSEC', 'PIPOINT', 'PIUSER', 'PIDS', 'PIModules', 'PIHeadingSets', 'PIBatch', 'PICampaign', 'PITransferRecords', 'PIBATCHLEGACY') }
+                PointAccess    = 'Read'
+                DataAccess     = 'Read'
+            },
+            @{
+                Name           = 'PI Points and Analysis Creator'
+                Description    = 'Identity for PIACEService, PIAFService and users that can create and edit PI Points'
+                Mappings       = $PIPointsAnalysisCreatorPrincipals
+                DatabaseAccess = @{ ReadWrite = @('PIPOINT', 'PIDS') }
+                PointAccess    = 'ReadWrite'
+                DataAccess     = 'ReadWrite'
+            }
+            @{
+                Name           = 'PI Web Apps'
+                Description    = 'Identity for PI Vision, PI Web API, and PI Web API Crawler'
+                Mappings       = $PIWebAppsPrincipals
+                DatabaseAccess = @{ Read = @('PIDBSEC', 'PIPOINT', 'PIUSER', 'PIMAPPING') }
+                PointAccess    = 'Read'
+                DataAccess     = 'Read'
+            },
+            @{
+                Name           = 'PI Connector Relays'
+                Description    = 'Identity for PI Connector Relays'
+                Mappings       = $PIConnectorRelaysPrincipals
+                DatabaseAccess = @{
+                    Read      = 'PIUSER'
+                    ReadWrite = @('PIPOINT', 'PIDS')
+                }
+                PointAccess    = 'ReadWrite'
+                DataAccess     = 'ReadWrite'
+            },
+            @{
+                Name           = 'PI Data Collection Managers'
+                Description    = 'Identity for PI Data Collection Managers'
+                Mappings       = $PIDataCollectionManagersPrincipals
+                DatabaseAccess = @{ Read = @('PIDBSEC', 'PIDS', 'PIPOINT', 'PIREPLICATION', 'PIUSER') }
+                PointAccess    = 'Read'
+                DataAccess     = 'Read'
+            }
+        )
         #endregion
 
-        #region Create PI Identities, create PI Mappings, and assign permissions 
-        Foreach($Identity in $Identities)
-        {
+        #region Create PI Identities, create PI Mappings, and assign permissions
+        Foreach ($Identity in $Identities) {
             # Only process a role if there is a mappi; a role is useless without any mappings.
-            if(![System.String]::IsNullOrEmpty($Identity.Mappings))
-            {
+            if (![System.String]::IsNullOrEmpty($Identity.Mappings)) {
                 # Create the role as a PI Identity
-                PIIdentity "Set_$($Identity.Name)"
-                {
-                    Name = $($Identity.Name)
-                    Description = $($Identity.Description)
-                    IsEnabled = $true
-                    CanDelete = $false
+                PIIdentity "Set_$($Identity.Name)" {
+                    Name               = $($Identity.Name)
+                    Description        = $($Identity.Description)
+                    IsEnabled          = $true
+                    CanDelete          = $false
                     AllowUseInMappings = $true
-                    AllowUseInTrusts = $true
-                    Ensure = "Present"
-                    PIDataArchive = $NodeName
+                    AllowUseInTrusts   = $true
+                    Ensure             = "Present"
+                    PIDataArchive      = $NodeName
                 }
                 # Create all the associated PI Mappings
-                Foreach($Mapping in $Identity.Mappings)
-                {
-                    if(![System.String]::IsNullOrEmpty($Mapping))
-                    {
-                        PIMapping "Set_$Mapping"
-                        {
-                            Name = $Mapping
+                Foreach ($Mapping in $Identity.Mappings) {
+                    if (![System.String]::IsNullOrEmpty($Mapping)) {
+                        PIMapping "Set_$Mapping" {
+                            Name          = $Mapping
                             PrincipalName = $Mapping
-                            Identity = $Identity.Name
-                            Enabled = $true
-                            Ensure = "Present"
+                            Identity      = $Identity.Name
+                            Enabled       = $true
+                            Ensure        = "Present"
                             PIDataArchive = $NodeName
-                            DependsOn="[PIIdentity]Set_$($Identity.Name)"
+                            DependsOn     = "[PIIdentity]Set_$($Identity.Name)"
                         }
                     }
                 }
                 # Define the PI Database Security
-                Foreach($AccessLevel in $Identity.DatabaseAccess.GetEnumerator())
-                {
+                Foreach ($AccessLevel in $Identity.DatabaseAccess.GetEnumerator()) {
                     $DatabaseNames = $AccessLevel.Value
                     $AccessString = $AccessLevel.Key
-                    Foreach($Database in $DatabaseNames)
-                    {
-                        PIAccessControl "$($Identity.Name)_$Database"
-                        {
-                            Name = $Database
-                            Type = "PIDatabaseSecurity"
-                            Ensure = "Present"
-                            Identity = $Identity.Name
-                            Access = $AccessString
-                            DependsOn="[PIIdentity]Set_$($Identity.Name)"
+                    Foreach ($Database in $DatabaseNames) {
+                        PIAccessControl "$($Identity.Name)_$Database" {
+                            Name      = $Database
+                            Type      = "PIDatabaseSecurity"
+                            Ensure    = "Present"
+                            Identity  = $Identity.Name
+                            Access    = $AccessString
+                            DependsOn = "[PIIdentity]Set_$($Identity.Name)"
                         }
-                    }    
+                    }
                 }
                 # Define security for default PI Points
-                Foreach($Point in $DefaultPIPoints)
-                {
-                    PIAccessControl "$($Identity.Name)_PtSecurity_$Point"
-                    {
-                        Name = $Point
-                        Type = "PtSecurity"
-                        Ensure = "Present"
-                        Identity = $Identity.Name
-                        Access = $Identity.PointAccess
-                        DependsOn="[PIIdentity]Set_$($Identity.Name)"
+                Foreach ($Point in $DefaultPIPoints) {
+                    PIAccessControl "$($Identity.Name)_PtSecurity_$Point" {
+                        Name      = $Point
+                        Type      = "PtSecurity"
+                        Ensure    = "Present"
+                        Identity  = $Identity.Name
+                        Access    = $Identity.PointAccess
+                        DependsOn = "[PIIdentity]Set_$($Identity.Name)"
                     }
 
-                    PIAccessControl "$($Identity.Name)_DataSecurity_$Point"
-                    {
-                        Name = $Point
-                        Type = "DataSecurity"
-                        Ensure = "Present"
-                        Identity = $Identity.Name
-                        Access = $Identity.DataAccess
-                        DependsOn="[PIIdentity]Set_$($Identity.Name)"
+                    PIAccessControl "$($Identity.Name)_DataSecurity_$Point" {
+                        Name      = $Point
+                        Type      = "DataSecurity"
+                        Ensure    = "Present"
+                        Identity  = $Identity.Name
+                        Access    = $Identity.DataAccess
+                        DependsOn = "[PIIdentity]Set_$($Identity.Name)"
                     }
                 }
-            }    
+            }
         }
         #endregion
 
-        #region Clean up default PI Identities 
-        Foreach($Database in $PIDatabases)
-        {
+        #region Clean up default PI Identities
+        Foreach ($Database in $PIDatabases) {
             # Remove piadmin from the ACLs since it always has full access.
-            PIAccessControl "piadmin_$Database"
-            {
-                Name = $Database
-                Type = "PIDatabaseSecurity"
-                Ensure = "Absent"
+            PIAccessControl "piadmin_$Database" {
+                Name     = $Database
+                Type     = "PIDatabaseSecurity"
+                Ensure   = "Absent"
                 Identity = "piadmin"
             }
             # Remove PIWorld from ACLs since it is disabled in this configuration.
-            PIAccessControl "PIWorld_$Database"
-            {
-                Name = $Database
-                Type = "PIDatabaseSecurity"
-                Ensure = "Absent"
+            PIAccessControl "PIWorld_$Database" {
+                Name     = $Database
+                Type     = "PIDatabaseSecurity"
+                Ensure   = "Absent"
                 Identity = "PIWorld"
             }
         }
         # Delete the unused default identities
-        $DefaultIdentitiesToDelete=@('PIOperators','PISupervisors','PIEngineers','pidemo')
-        Foreach($DefaultIdentity in $DefaultIdentitiesToDelete)
-        {
-            PIIdentity "Delete_$DefaultIdentity"
-            {
-                Name = $DefaultIdentity
-                Ensure = "Absent"
+        $DefaultIdentitiesToDelete = @('PIOperators', 'PISupervisors', 'PIEngineers', 'pidemo')
+        Foreach ($DefaultIdentity in $DefaultIdentitiesToDelete) {
+            PIIdentity "Delete_$DefaultIdentity" {
+                Name          = $DefaultIdentity
+                Ensure        = "Absent"
                 PIDataArchive = $NodeName
             }
         }
         # Disable PIWorld and piusers
-        $DefaultIdentitiesToDisable=@('PIWorld','piusers')
-        Foreach($DefaultIdentity in $DefaultIdentitiesToDisable)
-        {
-            PIIdentity "Delete_$DefaultIdentity"
-            {
-                Name = $DefaultIdentity
-                IsEnabled = $false
+        $DefaultIdentitiesToDisable = @('PIWorld', 'piusers')
+        Foreach ($DefaultIdentity in $DefaultIdentitiesToDisable) {
+            PIIdentity "Delete_$DefaultIdentity" {
+                Name             = $DefaultIdentity
+                IsEnabled        = $false
                 AllowUseInTrusts = $false
-                Ensure = "Present"
-                PIDataArchive = $NodeName
+                Ensure           = "Present"
+                PIDataArchive    = $NodeName
             }
-            
         }
         #endregion
     }

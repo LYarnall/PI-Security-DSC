@@ -33,8 +33,7 @@ Get-PIResource_Ensure -PIResource $PIResource
 PI Resource object to evaluate presence of.
 
 #>
-function Get-PIResource_Ensure
-{
+function Get-PIResource_Ensure {
     [CmdletBinding()]
     [OutputType([System.String])]
     param(
@@ -42,22 +41,17 @@ function Get-PIResource_Ensure
         $PIResource
     )
 
-    if($null -eq $PIResource)
-    {
+    if ($null -eq $PIResource) {
         $Ensure = "Absent"
     }
-    else
-    {
+    else {
         $Ensure = "Present"
-        Foreach($Property in $($PIResource | Get-Member -MemberType Property | Select-Object -ExpandProperty Name))
-        {
+        Foreach ($Property in $($PIResource | Get-Member -MemberType Property | Select-Object -ExpandProperty Name)) {
             $RawValue = $PIResource | Select-Object -ExpandProperty $Property
-            if($null -eq $RawValue)
-            {
+            if ($null -eq $RawValue) {
                 $Value = 'NULL'
             }
-            else
-            {
+            else {
                 $Value = $RawValue.ToString()
             }
             Write-Verbose "GetResult: $($Property): $($Value)."
@@ -92,16 +86,15 @@ Desired ACL for the PI Data Archive object.
 Current ACL for the PI Data Archive object.
 
 #>
-function Compare-PIDataArchiveACL
-{
+function Compare-PIDataArchiveACL {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Desired,
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Current
     )
@@ -134,31 +127,26 @@ Desired set of property values for the resource.
 Current set of property values for the resource.
 
 #>
-function Compare-PIResourcePropertyCollection
-{
+function Compare-PIResourcePropertyCollection {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.Object]
         $Desired,
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.Collections.Hashtable]
         $Current
     )
 
-    if($Current.Ensure -eq 'Present' -and $Desired['Ensure'] -eq 'Present')
-    {
-        Foreach($Parameter in $Desired.GetEnumerator())
-        {
+    if ($Current.Ensure -eq 'Present' -and $Desired['Ensure'] -eq 'Present') {
+        Foreach ($Parameter in $Desired.GetEnumerator()) {
             # Nonrelevant fields can be skipped.
-            if($Current.Keys -contains $Parameter.Key)
-            {
+            if ($Current.Keys -contains $Parameter.Key) {
                 # Make sure all applicable fields match.
                 Write-Verbose "Checking $($Parameter.Key) current value: ($($Current[$Parameter.Key])) against desired value: ($($Parameter.Value))"
-                if($($Current[$Parameter.Key]) -ne $Parameter.Value)
-                {
+                if ($($Current[$Parameter.Key]) -ne $Parameter.Value) {
                     Write-Verbose "Undesired property found: $($Parameter.Key)"
                     return $false
                 }
@@ -168,8 +156,7 @@ function Compare-PIResourcePropertyCollection
         Write-Verbose "No undesired properties found."
         return $true
     }
-    else
-    {
+    else {
         return $($Current.Ensure -eq 'Absent' -and $Desired['Ensure'] -eq 'Absent')
     }
 }
@@ -194,21 +181,20 @@ Set-PIResourceSavedParameterSet -pt $pt -sp $sp -cp $cp
 Name of the target AF Server.
 
 #>
-function Set-PIResourceSavedParameterSet
-{
+function Set-PIResourceSavedParameterSet {
     [OutputType([System.Collections.Hashtable])]
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [alias('pt')]
         [System.Collections.Hashtable]
         $ParameterTable,
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [alias('sp')]
         [System.String[]]
         $SpecifiedParameters,
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [alias('cp')]
         [System.Collections.Hashtable]
         $CurrentParameters
@@ -219,14 +205,12 @@ function Set-PIResourceSavedParameterSet
     $ParametersToPreserve = $CurrentParameters
     # Explicitly specified parameters and common parameters should not be preserved.
     $ParametersToNotPreserve = $SpecifiedParameters + $CommonParameters
-    Foreach($Parameter in $ParametersToNotPreserve)
-    {
-       Write-Verbose "NotPreserving: $($Parameter)"
-       $null = $ParametersToPreserve.Remove($Parameter)
+    Foreach ($Parameter in $ParametersToNotPreserve) {
+        Write-Verbose "NotPreserving: $($Parameter)"
+        $null = $ParametersToPreserve.Remove($Parameter)
     }
     # Now that we have the parameters we want to keep, set their values in the parameter table.
-    Foreach($Parameter in $ParametersToPreserve.GetEnumerator())
-    {
+    Foreach ($Parameter in $ParametersToPreserve.GetEnumerator()) {
         Write-Verbose "Preserving: $($Parameter.Key): $($Parameter.Value)"
         $ParameterTable[$Parameter.Key] = $Parameter.Value
     }
@@ -253,8 +237,7 @@ Connect-AFServerUsingSDK -AFServer localhost
 Name of the target AF Server.
 
 #>
-function Connect-AFServerUsingSDK
-{
+function Connect-AFServerUsingSDK {
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -268,12 +251,10 @@ function Connect-AFServerUsingSDK
     }
 
     $piSystems = New-Object OSIsoft.AF.PISystems
-    if($piSystems.Contains($AFServer))
-    {
+    if ($piSystems.Contains($AFServer)) {
         $AF = $piSystems[$AFServer]
     }
-    else
-    {
+    else {
         $ErrorActionPreference = 'Stop'
         throw "Could not locate AF Server '$AFServer' in known servers table"
     }
@@ -305,16 +286,15 @@ Name of the AF Server hosting the AF Element.
 Path to an AF Element.
 
 #>
-function ConvertTo-FullAFPath
-{
+function ConvertTo-FullAFPath {
     param(
-            [Parameter(Mandatory)]
-            [ValidateNotNullOrEmpty()]
-            [string]$AFServer,
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$AFServer,
 
-            [Parameter(Mandatory)]
-            [ValidateNotNullOrEmpty()]
-            [string]$ElementPath
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$ElementPath
     )
 
     $FullPath = "\\" + $AFServer.Trim("\") + "\" + $ElementPath.Trim("\")
@@ -346,8 +326,7 @@ Name of the AF Server hosting the AF Identity.
 Name of the AF Identity.
 
 #>
-function Get-AFIdentityDSC
-{
+function Get-AFIdentityDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -365,11 +344,11 @@ function Get-AFIdentityDSC
 }
 
 Export-ModuleMember -Function @(
-                                    'Get-PIResource_Ensure',
-                                    'Compare-PIDataArchiveACL',
-                                    'Compare-PIResourcePropertyCollection',
-                                    'Set-PIResourceSavedParameterSet',
-                                    'Connect-AFServerUsingSDK',
-                                    'ConvertTo-FullAFPath',
-                                    'Get-AFIdentityDSC'
-                                )
+    'Get-PIResource_Ensure',
+    'Compare-PIDataArchiveACL',
+    'Compare-PIResourcePropertyCollection',
+    'Set-PIResourceSavedParameterSet',
+    'Connect-AFServerUsingSDK',
+    'ConvertTo-FullAFPath',
+    'Get-AFIdentityDSC'
+)

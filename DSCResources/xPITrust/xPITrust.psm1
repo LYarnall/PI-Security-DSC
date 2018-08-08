@@ -16,10 +16,9 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -37,23 +36,22 @@ function Get-TargetResource
     $Ensure = Get-PIResource_Ensure -PIResource $PIResource -Verbose:$VerbosePreference
 
     return @{
-        WindowsDomain = $PIResource.Domain
-        Description = $PIResource.Description
-        Enabled = $PIResource.IsEnabled
-        PIDataArchive = $PIDataArchive
-        NetworkPath = $PIResource.NetworkHost
-        WindowsAccount = $PIResource.OSUser
-        Name = $Name
-        Identity = $PIResource.Identity
+        WindowsDomain   = $PIResource.Domain
+        Description     = $PIResource.Description
+        Enabled         = $PIResource.IsEnabled
+        PIDataArchive   = $PIDataArchive
+        NetworkPath     = $PIResource.NetworkHost
+        WindowsAccount  = $PIResource.OSUser
+        Name            = $Name
+        Identity        = $PIResource.Identity
         ApplicationName = $PIResource.ApplicationName
-        NetMask = $PIResource.NetMask
-        IPAddress = $PIResource.IPAddress
-        Ensure = $Ensure
+        NetMask         = $PIResource.NetMask
+        IPAddress       = $PIResource.IPAddress
+        Ensure          = $Ensure
     }
 }
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
@@ -91,7 +89,7 @@ function Set-TargetResource
         [System.String]
         $IPAddress,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure
     )
@@ -99,35 +97,32 @@ function Set-TargetResource
     $PIResource = Get-TargetResource -Name $Name -PIDataArchive $PIDataArchive
 
     $ParameterTable = @{
-            PIDataArchive = $PIDataArchive
-            Name = $Name
-            Identity = $Identity
-            NetworkPath = $NetworkPath
-            IPAddress = $IPAddress
-            WindowsDomain = $WindowsDomain
-            ApplicationName = $ApplicationName
-            WindowsAccount = $WindowsAccount
-            NetMask = $NetMask
-            Description = $Description
-            Disabled = !$Enabled
-        }
+        PIDataArchive   = $PIDataArchive
+        Name            = $Name
+        Identity        = $Identity
+        NetworkPath     = $NetworkPath
+        IPAddress       = $IPAddress
+        WindowsDomain   = $WindowsDomain
+        ApplicationName = $ApplicationName
+        WindowsAccount  = $WindowsAccount
+        NetMask         = $NetMask
+        Description     = $Description
+        Disabled        = !$Enabled
+    }
 
     # If the resource is supposed to be present we will either add it or set it.
-    if($Ensure -eq 'Present')
-    {
-        if($PIResource.Ensure -eq "Present")
-        {
+    if ($Ensure -eq 'Present') {
+        if ($PIResource.Ensure -eq "Present") {
             $SpecifiedParameters = [System.String[]]$PSBoundParameters.Keys
             $ParameterTable = Set-PIResourceSavedParameterSet -pt $ParameterTable `
-                                                                -sp $SpecifiedParameters `
-                                                                -cp $PIResource `
-                                                                -Verbose:$VerbosePreference
-             # Set the relevant props
-             Write-Verbose "Setting PITrust: '$Name'"
-             Set-PITrustDSC $ParameterTable
+                -sp $SpecifiedParameters `
+                -cp $PIResource `
+                -Verbose:$VerbosePreference
+            # Set the relevant props
+            Write-Verbose "Setting PITrust: '$Name'"
+            Set-PITrustDSC $ParameterTable
         }
-        else
-        {
+        else {
             Write-Verbose $PIResource.Ensure
             # Add the Absent Trust with the props.
             Write-Verbose "Adding PITrust: '$Name'"
@@ -135,15 +130,13 @@ function Set-TargetResource
         }
     }
     # If the resource is supposed to be absent we remove it.
-    else
-    {
+    else {
         Write-Verbose "Removing PITrust: '$($PIResource.Name)'"
         Remove-PITrustDSC -PIDataArchive $PIDataArchive -Name $PIResource.Name
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -182,7 +175,7 @@ function Test-TargetResource
         [System.String]
         $IPAddress,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure
     )
@@ -193,8 +186,7 @@ function Test-TargetResource
     return $(Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
 }
 
-function Get-PITrustDSC
-{
+function Get-PITrustDSC {
     param(
         [System.String]
         $PIDataArchive = "localhost",
@@ -208,8 +200,7 @@ function Get-PITrustDSC
     return $PIResource
 }
 
-function Set-PITrustDSC
-{
+function Set-PITrustDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.Collections.Hashtable]
@@ -218,12 +209,11 @@ function Set-PITrustDSC
     $PIDataArchive = $ParameterTable["PIDataArchive"]
     $Connection = Connect-PIDataArchive -PIDataArchiveMachineName $PIDataArchive
     $ParameterTable.Remove("PIDataArchive")
-    $ParameterTable.Add("Connection",$Connection)
+    $ParameterTable.Add("Connection", $Connection)
     Set-PITrust @ParameterTable
 }
 
-function Add-PITrustDSC
-{
+function Add-PITrustDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.Collections.Hashtable]
@@ -232,12 +222,11 @@ function Add-PITrustDSC
     $PIDataArchive = $ParameterTable["PIDataArchive"]
     $Connection = Connect-PIDataArchive -PIDataArchiveMachineName $PIDataArchive
     $ParameterTable.Remove("PIDataArchive")
-    $ParameterTable.Add("Connection",$Connection)
+    $ParameterTable.Add("Connection", $Connection)
     Add-PITrust @ParameterTable
 }
 
-function Remove-PITrustDSC
-{
+function Remove-PITrustDSC {
     param(
         [System.String]
         $PIDataArchive = "localhost",

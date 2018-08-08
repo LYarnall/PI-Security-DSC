@@ -10,21 +10,18 @@ Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -P
 
 $TestEnvironment = Initialize-TestEnvironment -DSCModuleName $script:DSCModuleName -DSCResourceName $script:DSCResourceName
 
-function Invoke-TestSetup
-{
+function Invoke-TestSetup {
 
 }
 
-function Invoke-TestCleanup
-{
+function Invoke-TestCleanup {
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
 }
 
 #endregion HEADER
 
 # Begin Testing
-try
-{
+try {
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
@@ -32,72 +29,72 @@ try
         $TargetObject = 'PIAccessControl entry'
         $testPIDataArchive = 'localhost'
         $defaultParameters = @{
-                                Identity = "piadmins"
-                                Name = "PIPOINT"
-                                Type = "PIDatabaseSecurity"
-                                Access = "Read, Write"
-                                Ensure = "Present"
-                                PIDataArchive = $testPIDataArchive
+            Identity      = "piadmins"
+            Name          = "PIPOINT"
+            Type          = "PIDatabaseSecurity"
+            Access        = "Read, Write"
+            Ensure        = "Present"
+            PIDataArchive = $testPIDataArchive
         }
         $testCases = @{
-            DesiredState = @{
-                Context = 'When the system is in the desired state'
+            DesiredState                      = @{
+                Context         = 'When the system is in the desired state'
                 InputParameters = $defaultParameters
-                Access = @{
-                                piadmin = "Read, Write"
-                                piadmins = "Read, Write"
-                                PIWorld = "Read"
+                Access          = @{
+                    piadmin  = "Read, Write"
+                    piadmins = "Read, Write"
+                    PIWorld  = "Read"
                 }
-                Desired = $true
-                Verb = "Set"
+                Desired         = $true
+                Verb            = "Set"
             }
-            NotDesiredStateAbsent = @{
-                Context = "When the system is not in the desired state because the $TargetObject is absent"
+            NotDesiredStateAbsent             = @{
+                Context         = "When the system is not in the desired state because the $TargetObject is absent"
                 InputParameters = $defaultParameters
-                Access = @{
-                                piadmin = "Read, Write"
-                }
-                Desired = $false
-                Verb = "Add"
-            }
-            NotDesiredStatePresent = @{
-                Context = "When the system is not in the desired state because the $TargetObject is present"
-                InputParameters = @{
-                                Identity = "piadmins"
-                                Name = "PIPOINT"
-                                Type = "PIDatabaseSecurity"
-                                Ensure = "Absent"
-                                PIDataArchive = $testPIDataArchive
-                }
-                Access = @{
-                                piadmins = "Read, Write"
-                }
-                Desired = $false
-                Verb = "Remove"
-            }
-            NotDesiredStateIncorrectParameter = @{
-                Context = 'When the system is not in the desired state because a parameter is incorrect'
-                InputParameters = $defaultParameters
-                Access = @{
-                                piadmins = "Read"
-                }
-                Desired = $false
-                Verb = "Set"
-            }
-            DesiredStateAbsent = @{
-                Context = 'When the system is in the desired state because it is absent'
-                InputParameters = @{
-                                Identity = "piadmins"
-                                Name = "PIPOINT"
-                                Type = "PIDatabaseSecurity"
-                                Ensure = "Absent"
-                                PIDataArchive = $testPIDataArchive
-                }
-                Access = @{
+                Access          = @{
                     piadmin = "Read, Write"
                 }
-                Desired = $true
-                Verb = "Remove"
+                Desired         = $false
+                Verb            = "Add"
+            }
+            NotDesiredStatePresent            = @{
+                Context         = "When the system is not in the desired state because the $TargetObject is present"
+                InputParameters = @{
+                    Identity      = "piadmins"
+                    Name          = "PIPOINT"
+                    Type          = "PIDatabaseSecurity"
+                    Ensure        = "Absent"
+                    PIDataArchive = $testPIDataArchive
+                }
+                Access          = @{
+                    piadmins = "Read, Write"
+                }
+                Desired         = $false
+                Verb            = "Remove"
+            }
+            NotDesiredStateIncorrectParameter = @{
+                Context         = 'When the system is not in the desired state because a parameter is incorrect'
+                InputParameters = $defaultParameters
+                Access          = @{
+                    piadmins = "Read"
+                }
+                Desired         = $false
+                Verb            = "Set"
+            }
+            DesiredStateAbsent                = @{
+                Context         = 'When the system is in the desired state because it is absent'
+                InputParameters = @{
+                    Identity      = "piadmins"
+                    Name          = "PIPOINT"
+                    Type          = "PIDatabaseSecurity"
+                    Ensure        = "Absent"
+                    PIDataArchive = $testPIDataArchive
+                }
+                Access          = @{
+                    piadmin = "Read, Write"
+                }
+                Desired         = $true
+                Verb            = "Remove"
             }
         }
 
@@ -118,16 +115,14 @@ try
                 $result = Get-TargetResource -Name $InputParameters.Name -Type $InputParameters.Type -Identity $InputParameters.Identity -PIDataArchive $InputParameters.PIDataArchive
 
                 It 'Should return the same values passed' {
-                    foreach($parameter in $InputParameters.GetEnumerator())
-                    {
+                    foreach ($parameter in $InputParameters.GetEnumerator()) {
                         $result[$parameter.Key] | Should -Be $parameter.Value
                     }
                 }
             }
 
-            $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
-            foreach($AbsentCase in $AbsentCases)
-            {
+            $AbsentCases = @('DesiredStateAbsent', 'NotDesiredStateAbsent')
+            foreach ($AbsentCase in $AbsentCases) {
                 $testCase = $testCases[$AbsentCase].Clone()
                 Context $testCase.Context {
                     Mock -CommandName "Get-PIAccessControl" {
@@ -149,8 +144,7 @@ try
 
             Mock -CommandName "Set-PIAccessControl" -Verifiable
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = @{}
                 $testCase = $testCases[$key].Clone()
                 Context $testCase.Context {
@@ -160,15 +154,13 @@ try
                     }
 
                     $InputParameters = $testCase.InputParameters
-                    if($testCase.Desired)
-                    {
+                    if ($testCase.Desired) {
                         It "Should not attempt to $($testCase.Verb) the $TargetObject" {
                             Set-TargetResource @InputParameters
                             Assert-MockCalled -CommandName Set-PIAccessControl -Exactly 0 -Scope It
                         }
                     }
-                    else
-                    {
+                    else {
                         It "Should attempt to $($testCase.Verb) the $TargetObject" {
                             Set-TargetResource @InputParameters
                             Assert-MockCalled -CommandName Set-PIAccessControl -Exactly 1 -Scope It
@@ -180,8 +172,7 @@ try
 
         Describe "$TargetModule\Test-TargetResource" {
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key].Clone()
                 Context $testCase.Context {
                     Mock -CommandName "Get-PIAccessControl" {
@@ -199,18 +190,17 @@ try
 
         Describe "$TargetModule\Set-PIAccessControl" {
 
-            $TestCase =  @{
-                            piadmin = "Read, Write"
-                            piadmins = "Read, Write"
-                            PIReaders = "Read"
-                            PIWorld = ""
-                    }
+            $TestCase = @{
+                piadmin   = "Read, Write"
+                piadmins  = "Read, Write"
+                PIReaders = "Read"
+                PIWorld   = ""
+            }
             $types = @(
-                        "PIPoint",
-                        "PIDatabaseSecurity"
+                "PIPoint",
+                "PIDatabaseSecurity"
             )
-            foreach($type in $types)
-            {
+            foreach ($type in $types) {
                 $MockCommandName = "Set-$($type)DSC"
                 Mock -CommandName $MockCommandName {} -Verifiable
                 Context "When a resource of Type '$type' is called" {
@@ -225,20 +215,19 @@ try
         Describe "$TargetModule\Get-PIAccessControl" {
 
             $TestCase = @{
-                    HashTable = @{
-                        piadmin = "Read, Write"
-                        piadmins = "Read, Write"
-                        PIReaders = "Read"
-                        PIWorld = ""
-                    }
-                    String = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r) | PIWorld: A()"
+                HashTable = @{
+                    piadmin   = "Read, Write"
+                    piadmins  = "Read, Write"
+                    PIReaders = "Read"
+                    PIWorld   = ""
                 }
+                String    = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r) | PIWorld: A()"
+            }
             $types = @(
-                        "PIPoint",
-                        "PIDatabaseSecurity"
+                "PIPoint",
+                "PIDatabaseSecurity"
             )
-            foreach($type in $types)
-            {
+            foreach ($type in $types) {
                 $MockCommandName = "Get-$($type)DSC"
                 Mock -CommandName $MockCommandName {
                     return $TestCase["String"]
@@ -246,7 +235,7 @@ try
                 Context "When a resource of Type '$type' is called" {
                     It 'Should return the correct value' {
                         $result = Get-PIAccessControl -PIDataArchive $testPIDataArchive -Name "Test" -Type $type
-                        foreach($key in $result.Keys){ $result[$Key] | Should -Be $TestCase["HashTable"][$key] }
+                        foreach ($key in $result.Keys) { $result[$Key] | Should -Be $TestCase["HashTable"][$key] }
                     }
                     It 'Should call the right helper function' {
                         Get-PIAccessControl -PIDataArchive $testPIDataArchive -Name "Test" -Type $type | Out-Null
@@ -259,24 +248,24 @@ try
         Describe "$TargetModule\ConvertTo-PIAccessControlHashtable" {
 
             Context 'When a supported value is passed' {
-            $TestCase = @{
+                $TestCase = @{
                     HashTable = @{
-                        piadmin = "Read, Write"
-                        piadmins = "Read, Write"
+                        piadmin   = "Read, Write"
+                        piadmins  = "Read, Write"
                         PIReaders = "Read"
-                        PIWorld = ""
+                        PIWorld   = ""
                     }
-                    String = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r) | PIWorld: A()"
+                    String    = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r) | PIWorld: A()"
                 }
 
                 It 'Should return the expected value' {
                     $result = ConvertTo-PIAccessControlHashtable $TestCase["String"]
-                    foreach($key in $result.Keys){ $result[$Key] | Should -Be $TestCase["HashTable"][$key] }
+                    foreach ($key in $result.Keys) { $result[$Key] | Should -Be $TestCase["HashTable"][$key] }
                 }
             }
             Context 'When an unsupported value is passed' {
-            $InvalidEntry = "D(r,w)"
-            $TestCase = "piadmin: $InvalidEntry"
+                $InvalidEntry = "D(r,w)"
+                $TestCase = "piadmin: $InvalidEntry"
                 It "Should throw: Invalid entry '$InvalidEntry' specified." {
                     { ConvertTo-PIAccessControlHashtable $TestCase } | Should -Throw "Invalid entry '$InvalidEntry' specified."
                 }
@@ -286,16 +275,16 @@ try
         Describe "$TargetModule\ConvertTo-PIAccessControlString" {
 
             Context 'When an empty value and Present are passed' {
-            $TestCase = @{
+                $TestCase = @{
                     HashTable = @{
-                        piadmin = "Read, Write"
-                        piadmins = "Read, Write"
+                        piadmin   = "Read, Write"
+                        piadmins  = "Read, Write"
                         PIReaders = "Read"
-                        PIWorld = ""
+                        PIWorld   = ""
                     }
-                    String = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r) | PIWorld: A()"
-                    Identity = "PIWorld"
-                    Ensure = "Present"
+                    String    = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r) | PIWorld: A()"
+                    Identity  = "PIWorld"
+                    Ensure    = "Present"
                 }
 
                 It 'Should return the expected value' {
@@ -304,16 +293,16 @@ try
                 }
             }
             Context 'When an empty value and Absent are passed' {
-            $TestCase = @{
+                $TestCase = @{
                     HashTable = @{
-                        piadmin = "Read, Write"
-                        piadmins = "Read, Write"
+                        piadmin   = "Read, Write"
+                        piadmins  = "Read, Write"
                         PIReaders = "Read"
-                        PIWorld = ""
+                        PIWorld   = ""
                     }
-                    String = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r)"
-                    Identity = 'PIWorld'
-                    Ensure = 'Absent'
+                    String    = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r)"
+                    Identity  = 'PIWorld'
+                    Ensure    = 'Absent'
                 }
 
                 It 'Should return the expected value' {
@@ -322,16 +311,16 @@ try
                 }
             }
             Context 'When a supported value and Present are passed' {
-            $TestCase = @{
+                $TestCase = @{
                     HashTable = @{
-                        piadmin = "Read, Write"
-                        piadmins = "Read, Write"
+                        piadmin   = "Read, Write"
+                        piadmins  = "Read, Write"
                         PIReaders = "Read"
-                        PIWorld = ""
+                        PIWorld   = ""
                     }
-                    String = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r) | PIWorld: A()"
-                    Identity = 'piadmins'
-                    Ensure = 'Present'
+                    String    = "piadmin: A(r,w) | piadmins: A(r,w) | PIReaders: A(r) | PIWorld: A()"
+                    Identity  = 'piadmins'
+                    Ensure    = 'Present'
                 }
 
                 It 'Should return the expected value' {
@@ -340,10 +329,10 @@ try
                 }
             }
             Context 'When an unsupported value is passed' {
-            $TestCase = @{
-                        piadmin = "Delete"
-                        PIWorld = ""
-                    }
+                $TestCase = @{
+                    piadmin = "Delete"
+                    PIWorld = ""
+                }
                 It "Should throw Invalid access string 'Delete' specified." {
                     { ConvertTo-PIAccessControlString $TestCase -Identity "piadmin" } | Should -Throw "Invalid access string 'Delete' specified."
                 }
@@ -389,7 +378,6 @@ try
         }
     }
 }
-finally
-{
+finally {
     Invoke-TestCleanup
 }

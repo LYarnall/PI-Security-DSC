@@ -16,10 +16,9 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [cmdletbinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -49,12 +48,10 @@ function Get-TargetResource
 
     $attribute = Get-AFAttributeDSC -AFServer $AFServer -ElementPath $ElementPath -Name $Name
 
-    if($null -eq $attribute)
-    {
+    if ($null -eq $attribute) {
         $ensureResult = 'Absent'
     }
-    else
-    {
+    else {
         $ensureResult = 'Present'
         $attributeName = $attribute.Name
         $attributeValue = Get-AFAttributeValueDSC -Attribute $attribute
@@ -70,19 +67,18 @@ function Get-TargetResource
     Write-Verbose "GetResult: IsArray: $attributeIsArray"
 
     $getTargetResourceResult = @{
-                                    AFServer = $AFServer;
-                                    Name = $attributeName;
-                                    Ensure = $ensureResult;
-                                    ElementPath = $ElementPath;
-                                    Value = $attributeValue;
-                                    Type = $attributeType;
-                                    IsArray = $attributeIsArray;
-                                }
+        AFServer    = $AFServer;
+        Name        = $attributeName;
+        Ensure      = $ensureResult;
+        ElementPath = $ElementPath;
+        Value       = $attributeValue;
+        Type        = $attributeType;
+        IsArray     = $attributeIsArray;
+    }
     return $getTargetResourceResult
 }
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
@@ -111,36 +107,29 @@ function Set-TargetResource
 
     $PIResource = Get-TargetResource -Ensure $Ensure -ElementPath $ElementPath -Name $Name -AFServer $AFServer
 
-    if($PIResource.Ensure -eq 'Absent')
-    {
-        if($Ensure -eq 'Absent')
-        {
+    if ($PIResource.Ensure -eq 'Absent') {
+        if ($Ensure -eq 'Absent') {
             Write-Verbose "Attribute '$Name' not found in Element"
             return
         }
-        else
-        {
+        else {
             Write-Verbose "Adding attribute Name: '$Name' Value: $Value"
             Add-AFAttributeDSC -AFServer $AFServer -ElementPath $ElementPath -Name $Name -Type $Type -IsArray $IsArray -Value $Value
         }
     }
-    else
-    {
-        if($Ensure -eq 'Absent')
-        {
+    else {
+        if ($Ensure -eq 'Absent') {
             Write-Verbose "Removing AFAttribute: '$Name'"
             Remove-AFAttributeDSC -AFServer $AFServer -ElementPath $ElementPath -Name $Name
         }
-        else
-        {
+        else {
             Write-Verbose "Setting AFAttribute: '$Name'"
             Set-AFAttributeDSC -AFServer $AFServer -ElementPath $ElementPath -Name $Name -Type $Type -IsArray $IsArray -Value $Value
         }
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -172,30 +161,24 @@ function Test-TargetResource
     $result = Get-TargetResource -Ensure $Ensure -ElementPath $ElementPath -Name $Name -AFServer $AFServer
     $ensureMatch = $result.Ensure -eq $Ensure
     # Return true without further processing if absent.
-    if($ensureMatch -and $Ensure -eq "Absent")
-    {
+    if ($ensureMatch -and $Ensure -eq "Absent") {
         return $true
     }
     $typeMatch = $result.Type -eq $Type
     $arrayMatch = $result.IsArray -eq $IsArray
-    if($result.IsArray)
-    {
+    if ($result.IsArray) {
         # Array equality check is a pain, here's the workaround
-        if($result.Value.Count -ne $Value.Count)
-        {
+        if ($result.Value.Count -ne $Value.Count) {
             $valueMatch = $false
         }
-        else
-        {
+        else {
             $valueMatch = $true
-            for($i=0; $i -lt $result.Value.Count; $i++)
-            {
-                if([string]$result.Value[$i] -ne $Value[$i]) { $valueMatch = $false; break }
+            for ($i = 0; $i -lt $result.Value.Count; $i++) {
+                if ([string]$result.Value[$i] -ne $Value[$i]) { $valueMatch = $false; break }
             }
         }
     }
-    else
-    {
+    else {
         $valueMatch = [string]$result.Value -eq $Value
     }
 
@@ -204,18 +187,15 @@ function Test-TargetResource
     Write-Verbose "TestResult: Type: $typeMatch"
     Write-Verbose "TestResult: IsArray: $arrayMatch"
 
-    if($ensureMatch -and $valueMatch -and $typeMatch -and $arrayMatch)
-    {
+    if ($ensureMatch -and $valueMatch -and $typeMatch -and $arrayMatch) {
         $true
     }
-    else
-    {
+    else {
         $false
     }
 }
 
-function Get-AFElementDSC
-{
+function Get-AFElementDSC {
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -237,16 +217,14 @@ function Get-AFElementDSC
 
     # This method returns a collection, must find specific element using key of the path
     $element = [OSIsoft.AF.Asset.AFElement]::FindElementsByPath($tempList, $null)[$ElementPath]
-    if($null -eq $element)
-    {
+    if ($null -eq $element) {
         $ErrorActionPreference = 'Stop'
         throw "Could not locate AF Element at path $ElementPath"
     }
     return $element
 }
 
-function Get-AFAttributeDSC
-{
+function Get-AFAttributeDSC {
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -266,16 +244,14 @@ function Get-AFAttributeDSC
     return $attribute
 }
 
-function Get-AFAttributeValueDSC
-{
+function Get-AFAttributeValueDSC {
     param(
         [object]$Attribute
     )
     $Attribute.GetValue().Value
 }
 
-function Set-AFAttributeDSC
-{
+function Set-AFAttributeDSC {
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -299,43 +275,35 @@ function Set-AFAttributeDSC
     $element = Get-AFElementDSC -AFServer $AFServer -ElementPath $ElementPath
     $attribute = Get-AFAttributeDSC -AFServer $AFServer -ElementPath $ElementPath -Name $Name
     $typeMatch = $attribute.Type -eq (ConvertFrom-TypeString -TypeName $Type -IsArray $IsArray)
-    if(-not $typeMatch)
-    {
+    if (-not $typeMatch) {
         Write-Verbose "Setting type to $Type$(if($IsArray){'[]'})"
         $attribute.Type = ConvertFrom-TypeString -TypeName $Type -IsArray $IsArray
     }
-    if($IsArray)
-    {
+    if ($IsArray) {
         # Array equality check is a pain, here's the workaround
-        if($Attribute.Value.Count -ne $Value.Count)
-        {
+        if ($Attribute.Value.Count -ne $Value.Count) {
             $valueMatch = $false
         }
-        else
-        {
+        else {
             $valueMatch = $true
-            for($i=0; $i -lt $Attribute.Value.Count; $i++)
-            {
-                if(([string]$attribute.Value[$i]) -ne $Value[$i]) { $valueMatch = $false }
+            for ($i = 0; $i -lt $Attribute.Value.Count; $i++) {
+                if (([string]$attribute.Value[$i]) -ne $Value[$i]) { $valueMatch = $false }
             }
         }
-        if(-not $valueMatch)
-        {
+        if (-not $valueMatch) {
             Write-Verbose "Setting value to $($Value -join ',')"
             $attribute.SetValue($Value)
             $element.CheckIn()
         }
     }
-    else
-    {
+    else {
         Write-Verbose "Setting value to $($Value[0])"
         $attribute.SetValue($Value[0])
         $element.CheckIn()
     }
 }
 
-function Add-AFAttributeDSC
-{
+function Add-AFAttributeDSC {
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -359,19 +327,16 @@ function Add-AFAttributeDSC
     $element = Get-AFElementDSC -AFServer $AFServer -ElementPath $ElementPath
     $attribute = $element.Attributes.Add($Name)
     $attribute.Type = ConvertFrom-TypeString -TypeName $Type -IsArray $IsArray
-    if($IsArray)
-    {
+    if ($IsArray) {
         $attribute.SetValue($Value) # writes array
     }
-    else
-    {
+    else {
         $attribute.SetValue($Value[0])
     }
     $element.CheckIn()
 }
 
-function Remove-AFAttributeDSC
-{
+function Remove-AFAttributeDSC {
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -390,9 +355,8 @@ function Remove-AFAttributeDSC
     $element.CheckIn()
 }
 
-function ConvertFrom-TypeString
-{
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseOutputTypeCorrectly", "", Justification="Output type is varies by design.")]
+function ConvertFrom-TypeString {
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseOutputTypeCorrectly", "", Justification = "Output type is varies by design.")]
     [cmdletbinding()]
     param
     (
@@ -402,10 +366,8 @@ function ConvertFrom-TypeString
         [boolean]$IsArray
     )
 
-    if($IsArray)
-    {
-        switch($TypeName)
-        {
+    if ($IsArray) {
+        switch ($TypeName) {
             "Boolean" {[System.Boolean[]]; break}
             "Byte" {[System.Byte[]]; break}
             "DateTime" {[System.DateTime[]]; break}
@@ -417,10 +379,8 @@ function ConvertFrom-TypeString
             "String" {[System.String[]]; break}
         }
     }
-    else
-    {
-        switch($TypeName)
-        {
+    else {
+        switch ($TypeName) {
             "Boolean" {[System.Boolean]; break}
             "Byte" {[System.Byte]; break}
             "DateTime" {[System.DateTime]; break}
