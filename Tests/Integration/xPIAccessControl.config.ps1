@@ -15,27 +15,25 @@ Configuration xPIAccessControl_Set
         [System.String] $PtName = "Sinusoid"
     )
 
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        PIAccessControl xPIAccessControl_SetIntegrationDb
-        {
-            Identity = $Node.Identity
-            Name = $DbName
-            Type = "PIDatabaseSecurity"
-            Access = $Access
-            Ensure = "Present"
+        PIAccessControl xPIAccessControl_SetIntegrationDb {
+            Identity      = $Node.Identity
+            Name          = $DbName
+            Type          = "PIDatabaseSecurity"
+            Access        = $Access
+            Ensure        = "Present"
             PIDataArchive = $Node.NodeName
-        } 
+        }
 
-        PIAccessControl xPIAccessControl_SetIntegrationPt
-        {
-            Identity = $Node.Identity
-            Name = $PtName
-            Type = "DataSecurity"
-            Access = $Access
-            Ensure = "Present"
+        PIAccessControl xPIAccessControl_SetIntegrationPt {
+            Identity      = $Node.Identity
+            Name          = $PtName
+            Type          = "DataSecurity"
+            Access        = $Access
+            Ensure        = "Present"
             PIDataArchive = $Node.NodeName
         }
     }
@@ -47,24 +45,22 @@ Configuration xPIAccessControl_Remove
         [System.String] $DbName = "PIMSGSS",
         [System.String] $PtName = "Sinusoid"
     )
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        PIAccessControl xPIAccessControl_RemoveIntegrationDb
-        {
-            Identity = $Node.Identity
-            Name = $DbName
-            Type = "PIDatabaseSecurity"
-            Ensure = "Absent"
+        PIAccessControl xPIAccessControl_RemoveIntegrationDb {
+            Identity      = $Node.Identity
+            Name          = $DbName
+            Type          = "PIDatabaseSecurity"
+            Ensure        = "Absent"
             PIDataArchive = $Node.NodeName
         }
-        PIAccessControl xPIAccessControl_RemoveIntegrationPt
-        {
-            Identity = $Node.Identity
-            Name = $PtName
-            Type = "DataSecurity"
-            Ensure = "Absent"
+        PIAccessControl xPIAccessControl_RemoveIntegrationPt {
+            Identity      = $Node.Identity
+            Name          = $PtName
+            Type          = "DataSecurity"
+            Ensure        = "Absent"
             PIDataArchive = $Node.NodeName
         }
     }

@@ -1,5 +1,4 @@
-function Initialize-TestEnvironment
-{
+function Initialize-TestEnvironment {
     [OutputType([Hashtable])]
     [CmdletBinding()]
     param
@@ -23,21 +22,19 @@ function Initialize-TestEnvironment
     Import-Module -Name $moduleFilePath -Scope 'Global' -Force
 
     $oldExecutionPolicy = Get-ExecutionPolicy
-    if ($oldExecutionPolicy -ine 'Unrestricted')
-    {
+    if ($oldExecutionPolicy -ine 'Unrestricted') {
         Set-ExecutionPolicy -ExecutionPolicy 'Unrestricted' -Scope 'Process' -Force
     }
 
     return @{
-        DSCModuleName = $DscModuleName
-        DSCResourceName = $DscResourceName
+        DSCModuleName      = $DscModuleName
+        DSCResourceName    = $DscResourceName
         ImportedModulePath = $moduleFilePath
         OldExecutionPolicy = $oldExecutionPolicy
     }
 }
 
-function Restore-TestEnvironment
-{
+function Restore-TestEnvironment {
     [CmdletBinding()]
     param
     (
@@ -47,8 +44,7 @@ function Restore-TestEnvironment
         $TestEnvironment
     )
 
-    if ($TestEnvironment.OldExecutionPolicy -ne (Get-ExecutionPolicy))
-    {
+    if ($TestEnvironment.OldExecutionPolicy -ne (Get-ExecutionPolicy)) {
         Set-ExecutionPolicy -ExecutionPolicy $TestEnvironment.OldExecutionPolicy -Scope 'Process' -Force
     }
 }

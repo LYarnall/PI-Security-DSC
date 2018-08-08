@@ -10,8 +10,7 @@ Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -P
 
 $TestEnvironment = Initialize-TestEnvironment -DSCModuleName $script:DSCModuleName -DSCResourceName $script:DSCResourceName
 
-function Invoke-TestSetup
-{
+function Invoke-TestSetup {
     $loaded = [System.Reflection.Assembly]::LoadWithPartialName("OSIsoft.AFSDK")
     if ($null -eq $loaded) {
         $ErrorActionPreference = 'Stop'
@@ -19,101 +18,96 @@ function Invoke-TestSetup
     }
 }
 
-function Invoke-TestCleanup
-{
+function Invoke-TestCleanup {
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
 }
 
 #endregion HEADER
 
 # Begin Testing
-try
-{
+try {
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
         $TargetModule = 'xAFIdentity'
         $testAFServer = 'localhost'
         $defaultParameters = @{
-                                AFServer=$testAFServer
-                                Ensure="Present"
-                                Name="World"
-                                IsEnabled=$false
+            AFServer  = $testAFServer
+            Ensure    = "Present"
+            Name      = "World"
+            IsEnabled = $false
         }
         $testCases = @{
-            DesiredState = @{
-                Context = 'When the system is in the desired state'
+            DesiredState                      = @{
+                Context         = 'When the system is in the desired state'
                 InputParameters = $defaultParameters
-                MockValue = @{
-                        AFServer=$testAFServer
-                        Ensure="Present"
-                        Name="World"
-                        IsEnabled=$false
-                    }
-                Desired = $true
-                Verb = "Set"
-            }
-            NotDesiredStateAbsent = @{
-                Context = 'When the system is not in the desired state because the identity is absent'
-                InputParameters = $defaultParameters
-                MockValue = $null
-                Desired = $false
-                Verb = "Add"
-            }
-            NotDesiredStatePresent = @{
-                Context = 'When the system is in the desired state because the identity is present'
-                InputParameters = @{
-                                AFServer=$testAFServer
-                                Ensure="Absent"
-                                Name="World"
-                                IsEnabled=$false
+                MockValue       = @{
+                    AFServer  = $testAFServer
+                    Ensure    = "Present"
+                    Name      = "World"
+                    IsEnabled = $false
                 }
-                MockValue = @{
-                        AFServer=$testAFServer
-                        Ensure="Present"
-                        Name="World"
-                        IsEnabled=$false
-                    }
-                Desired = $false
-                Verb = "Remove"
+                Desired         = $true
+                Verb            = "Set"
+            }
+            NotDesiredStateAbsent             = @{
+                Context         = 'When the system is not in the desired state because the identity is absent'
+                InputParameters = $defaultParameters
+                MockValue       = $null
+                Desired         = $false
+                Verb            = "Add"
+            }
+            NotDesiredStatePresent            = @{
+                Context         = 'When the system is in the desired state because the identity is present'
+                InputParameters = @{
+                    AFServer  = $testAFServer
+                    Ensure    = "Absent"
+                    Name      = "World"
+                    IsEnabled = $false
+                }
+                MockValue       = @{
+                    AFServer  = $testAFServer
+                    Ensure    = "Present"
+                    Name      = "World"
+                    IsEnabled = $false
+                }
+                Desired         = $false
+                Verb            = "Remove"
             }
             NotDesiredStateIncorrectParameter = @{
-                Context = 'When the system is not in the desired state because a parameter is incorrect'
+                Context         = 'When the system is not in the desired state because a parameter is incorrect'
                 InputParameters = $defaultParameters
-                MockValue = @{
-                        AFServer=$testAFServer
-                        Ensure="Present"
-                        Name="World"
-                        IsEnabled=$true
-                    }
-                Desired = $false
-                Verb = "Set"
-            }
-            DesiredStateAbsent = @{
-                Context = 'When the system is in the desired state because it is absent'
-                InputParameters = @{
-                                AFServer=$testAFServer
-                                Ensure="Absent"
-                                Name="World"
-                                IsEnabled=$false
+                MockValue       = @{
+                    AFServer  = $testAFServer
+                    Ensure    = "Present"
+                    Name      = "World"
+                    IsEnabled = $true
                 }
-                MockValue = $null
-                Desired = $true
-                Verb = "Remove"
+                Desired         = $false
+                Verb            = "Set"
+            }
+            DesiredStateAbsent                = @{
+                Context         = 'When the system is in the desired state because it is absent'
+                InputParameters = @{
+                    AFServer  = $testAFServer
+                    Ensure    = "Absent"
+                    Name      = "World"
+                    IsEnabled = $false
+                }
+                MockValue       = $null
+                Desired         = $true
+                Verb            = "Remove"
             }
         }
 
-        function Get-MockedAFIdentity
-        {
+        function Get-MockedAFIdentity {
             param(
                 [System.Collections.Hashtable] $InputEntry
             )
-            if($null -eq $InputEntry)
-            {
+            if ($null -eq $InputEntry) {
                 $MockAFIdentity = $null
             }
-            else
-            {
+            else {
                 $MockAFIdentity = New-Object PSCustomObject
                 $MockAFIdentity | Add-Member -MemberType NoteProperty -Name Name -Value $InputEntry.Name -TypeName string
                 $MockAFIdentity | Add-Member -MemberType NoteProperty -Name Description -Value $InputEntry.Description -TypeName string
@@ -135,16 +129,14 @@ try
                 $result = Get-TargetResource -AFServer $InputParameters.AFServer -Name $InputParameters.Name
 
                 It 'Should return the same values passed' {
-                    foreach($parameter in $InputParameters.GetEnumerator())
-                    {
+                    foreach ($parameter in $InputParameters.GetEnumerator()) {
                         $result[$parameter.Key] | Should -Be $parameter.Value
                     }
                 }
             }
 
-            $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
-            foreach($AbsentCase in $AbsentCases)
-            {
+            $AbsentCases = @('DesiredStateAbsent', 'NotDesiredStateAbsent')
+            foreach ($AbsentCase in $AbsentCases) {
                 $testCase = $testCases[$AbsentCase]
                 Context $testCase.Context {
                     Mock -CommandName Get-AFIdentityDSC {
@@ -167,8 +159,7 @@ try
             Mock -CommandName Remove-AFIdentityDSC -Verifiable
             Mock -CommandName Add-AFIdentityDSC -Verifiable
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName Get-AFIdentityDSC {
@@ -176,15 +167,14 @@ try
                     }
 
                     $InputParameters = $testCase.InputParameters
-                    switch($testCase.Verb)
-                    {
-                        "Add"    {
+                    switch ($testCase.Verb) {
+                        "Add" {
                             $ItMessage = 'Should attempt to add the identity'; break
                         }
                         "Remove" {
                             $ItMessage = 'Should attempt to remove the identity'; break
                         }
-                        "Set"    {
+                        "Set" {
                             $ItMessage = 'Should attempt to set the identity'; break
                         }
                     }
@@ -199,8 +189,7 @@ try
 
         Describe "$TargetModule\Test-TargetResource" {
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName Get-AFIdentityDSC {
@@ -217,7 +206,6 @@ try
         }
     }
 }
-finally
-{
+finally {
     Invoke-TestCleanup
 }

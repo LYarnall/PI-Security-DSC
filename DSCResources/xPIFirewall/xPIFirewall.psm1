@@ -16,10 +16,9 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -37,23 +36,22 @@ function Get-TargetResource
     $Ensure = Get-PIResource_Ensure -PIResource $PIResource -Verbose:$VerbosePreference
 
     return @{
-                Ensure = $Ensure
-                Value = $PIResource.Access
-                Hostmask = $PIResource.Hostmask
-                PIDataArchive = $PIDataArchive
-            }
+        Ensure        = $Ensure
+        Value         = $PIResource.Access
+        Hostmask      = $PIResource.Hostmask
+        PIDataArchive = $PIDataArchive
+    }
 }
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
-        [ValidateSet("Allow","Disallow","Unknown")]
+        [ValidateSet("Allow", "Disallow", "Unknown")]
         [System.String]
         $Value,
 
@@ -65,29 +63,26 @@ function Set-TargetResource
         $PIDataArchive = "localhost"
     )
 
-    if($Ensure -eq 'Absent')
-    {
+    if ($Ensure -eq 'Absent') {
         Write-Verbose "Removing PI Firewall entry '$Hostmask'"
         Remove-PIFirewallDSC -PIDataArchive $PIDataArchive -Hostmask $Hostmask
     }
-    else
-    {
+    else {
         Write-Verbose "Adding PI Firewall entry '$Hostmask'"
         Add-PIFirewallDSC -PIDataArchive $PIDataArchive -Hostmask $Hostmask -Value $Value
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
-        [ValidateSet("Allow","Disallow","Unknown")]
+        [ValidateSet("Allow", "Disallow", "Unknown")]
         [System.String]
         $Value,
 
@@ -105,8 +100,7 @@ function Test-TargetResource
     return $(Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource -Verbose:$VerbosePreference)
 }
 
-function Get-PIFirewallDSC
-{
+function Get-PIFirewallDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -122,10 +116,9 @@ function Get-PIFirewallDSC
     return $PIResource
 }
 
-function Add-PIFirewallDSC
-{
+function Add-PIFirewallDSC {
     param(
-        [ValidateSet("Allow","Disallow","Unknown")]
+        [ValidateSet("Allow", "Disallow", "Unknown")]
         [System.String]
         $Value,
 
@@ -140,8 +133,7 @@ function Add-PIFirewallDSC
     Add-PIFirewall -Connection $Connection -Hostmask $Hostmask -Value $Value
 }
 
-function Remove-PIFirewallDSC
-{
+function Remove-PIFirewallDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]

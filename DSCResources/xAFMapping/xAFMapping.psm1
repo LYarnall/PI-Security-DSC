@@ -16,10 +16,9 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -39,19 +38,18 @@ function Get-TargetResource
     $Ensure = Get-PIResource_Ensure -PIResource $mapping -Verbose:$VerbosePreference
 
     $returnValue = @{
-        AFServer = $AFServer;
-        Name = $mapping.Name;
+        AFServer    = $AFServer;
+        Name        = $mapping.Name;
         Description = $mapping.Description;
-        Account = $mapping.AccountDisplayName;
-        Identity = $mapping.SecurityIdentity.Name;
-        Ensure = $Ensure;
+        Account     = $mapping.AccountDisplayName;
+        Identity    = $mapping.SecurityIdentity.Name;
+        Ensure      = $Ensure;
     }
 
     $returnValue
 }
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
@@ -69,7 +67,7 @@ function Set-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
@@ -79,15 +77,13 @@ function Set-TargetResource
 
     $PIResource = Get-TargetResource -Name $Name -AFServer $AFServer
 
-    if($Ensure -eq "Present")
-    {
-        if($PIResource.Ensure -eq "Present")
-        {
+    if ($Ensure -eq "Present") {
+        if ($PIResource.Ensure -eq "Present") {
             <# Some special handling required if specified Account is different
             than the resource's current Account. Must recreate the AF Mapping
             because the mapping's Account is read-only. #>
             $deleteRequired = $false
-            if($Account -ne $PIResource.Account) { $deleteRequired = $true }
+            if ($Account -ne $PIResource.Account) { $deleteRequired = $true }
 
             <# Since the identity is present, we must perform due diligence to preserve settings
             not explicitly defined in the config. Remove $PSBoundParameters and those not used
@@ -96,38 +92,32 @@ function Set-TargetResource
             $ParametersToOmit | Foreach-Object { $null = $PIResource.Remove($_) }
 
             # Set the parameter values we want to keep to the current resource values.
-            Foreach($Parameter in $PIResource.GetEnumerator())
-            {
+            Foreach ($Parameter in $PIResource.GetEnumerator()) {
                 Set-Variable -Name $Parameter.Key -Value $Parameter.Value -Scope Local
             }
 
-            if($deleteRequired)
-            {
+            if ($deleteRequired) {
                 Write-Verbose "Removing and resetting AF Mapping '$Name'"
                 Remove-AFMappingDSC -AFServer $AFServer -Name $Name
                 Add-AFMappingDSC -AFServer $AFServer -Name $Name -Description $Description -Account $Account -Identity $Identity
             }
-            else
-            {
+            else {
                 Write-Verbose "Setting AF Mapping '$Name'"
                 Set-AFMappingDSC -AFServer $AFServer -Name $Name -Identity $Identity -Description $Description
             }
         }
-        else
-        {
+        else {
             Write-Verbose "Adding AF Mapping '$Name'"
             Add-AFMappingDSC -AFServer $AFServer -Name $Name -Description $Description -Account $Account -Identity $Identity
         }
     }
-    else
-    {
+    else {
         Write-Verbose "Removing AF Mapping '$Name'"
         Remove-AFMappingDSC -AFServer $AFServer -Name $Name
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -146,7 +136,7 @@ function Test-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
@@ -160,8 +150,7 @@ function Test-TargetResource
     return (Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource)
 }
 
-function Get-NTAccount
-{
+function Get-NTAccount {
     [CmdletBinding()]
     [OutputType([System.Security.Principal.NTAccount])]
     param
@@ -170,19 +159,16 @@ function Get-NTAccount
     )
 
     $splitAccount = $AccountName -split '\\'
-    if($splitAccount.Count -eq 1)
-    {
+    if ($splitAccount.Count -eq 1) {
         # No domain specified, assumes local user
         $ntAccount = New-Object System.Security.Principal.NTAccount -ArgumentList $splitAccount[0]
     }
-    elseif($splitAccount.Count -eq 2)
-    {
+    elseif ($splitAccount.Count -eq 2) {
         # Pass both domain and username
         $ntAccount = New-Object System.Security.Principal.NTAccount `
             -ArgumentList $splitAccount[0], $splitAccount[1]
     }
-    else
-    {
+    else {
         $ErrorActionPreference = 'Stop'
         throw "Invalid Account name specified."
     }
@@ -190,25 +176,21 @@ function Get-NTAccount
     # Test if account may be resolved correctly
     $oldErrPref = $ErrorActionPreference
     $ErrorActionPreference = 'Stop'
-    try
-    {
+    try {
         $SID = $ntAccount.Translate([System.Security.Principal.SecurityIdentifier])
         Write-Verbose "Successfully resolved $AccountName to $SID"
     }
-    catch
-    {
+    catch {
         throw "Could not translate Account name to security identifier."
     }
-    finally
-    {
+    finally {
         $ErrorActionPreference = $oldErrPref
     }
 
     return $ntAccount
 }
 
-function Get-AFMappingDSC
-{
+function Get-AFMappingDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -225,8 +207,7 @@ function Get-AFMappingDSC
     return $mapping
 }
 
-function Add-AFMappingDSC
-{
+function Add-AFMappingDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -258,8 +239,7 @@ function Add-AFMappingDSC
     $mapping.CheckIn()
 }
 
-function Set-AFMappingDSC
-{
+function Set-AFMappingDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -288,8 +268,7 @@ function Set-AFMappingDSC
     $mapping.CheckIn()
 }
 
-function Remove-AFMappingDSC
-{
+function Remove-AFMappingDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -307,8 +286,7 @@ function Remove-AFMappingDSC
     $mapping.CheckIn()
 }
 
-function Get-ValidAFIdentity
-{
+function Get-ValidAFIdentity {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -320,8 +298,7 @@ function Get-ValidAFIdentity
     )
 
     $AFIdentity = Get-AFIdentityDSC -AFServer $AFServer -Name $Identity
-    if($null -eq $AFIdentity)
-    {
+    if ($null -eq $AFIdentity) {
         throw "Could not find existing AF Identity with name '$Identity'."
     }
 

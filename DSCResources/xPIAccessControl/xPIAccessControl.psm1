@@ -16,10 +16,9 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -29,11 +28,11 @@ function Get-TargetResource
         $Name,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet('PIDatabaseSecurity','PtSecurity','DataSecurity')]
+        [ValidateSet('PIDatabaseSecurity', 'PtSecurity', 'DataSecurity')]
         [System.String]
         $Type,
 
-		[parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Identity,
 
@@ -44,30 +43,27 @@ function Get-TargetResource
     $Access = $null
     $AccessControlList = Get-PIAccessControl -PIDataArchive $PIDataArchive -Name $Name -Type $Type -Verbose:$VerbosePreference
 
-    if($AccessControlList.ContainsKey($Identity))
-    {
+    if ($AccessControlList.ContainsKey($Identity)) {
         $Ensure = "Present"
         $Access = $AccessControlList[$Identity]
         Write-Verbose "Found $Type\$Name with $Access access for $Identity"
     }
-    else
-    {
+    else {
         $Ensure = "Absent"
         Write-Verbose "Access for $Identity on $Type\$Name not found"
     }
 
     return @{
-                Access = $Access
-                Identity = $Identity
-                Name = $Name
-                Type = $Type
-                Ensure = $Ensure
-                PIDataArchive = $PIDataArchive
-            }
+        Access        = $Access
+        Identity      = $Identity
+        Name          = $Name
+        Type          = $Type
+        Ensure        = $Ensure
+        PIDataArchive = $PIDataArchive
+    }
 }
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
@@ -76,21 +72,21 @@ function Set-TargetResource
         $Name,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet('PIDatabaseSecurity','PtSecurity','DataSecurity')]
+        [ValidateSet('PIDatabaseSecurity', 'PtSecurity', 'DataSecurity')]
         [System.String]
         $Type,
 
-		[parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Identity,
 
-        [ValidateSet("Read","Write","Read, Write","Read,Write","ReadWrite","r","w","r,w","rw","")]
+        [ValidateSet("Read", "Write", "Read, Write", "Read,Write", "ReadWrite", "r", "w", "r,w", "rw", "")]
         [System.String]
         $Access,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
-        $Ensure="Present",
+        $Ensure = "Present",
 
         [System.String]
         $PIDataArchive = "localhost"
@@ -98,19 +94,16 @@ function Set-TargetResource
 
     $Access = ConvertTo-CanonicalAccessString -Access $Access
 
-    if(!$(Test-TargetResource -Name $Name -Identity $Identity -Type $Type -Access $Access -Ensure $Ensure -PIDataArchive $PIDataArchive))
-    {
+    if (!$(Test-TargetResource -Name $Name -Identity $Identity -Type $Type -Access $Access -Ensure $Ensure -PIDataArchive $PIDataArchive)) {
         # Get a Hashtable of full ACL.
         $AccessControlList = Get-PIAccessControl -PIDataArchive $PIDataArchive -Name $Name -Type $Type -Verbose:$VerbosePreference
 
         # Add or edit the entry for the identity
-        if($AccessControlList.ContainsKey($Identity))
-        {
+        if ($AccessControlList.ContainsKey($Identity)) {
             Write-Verbose "Updating entry for $Identity to $Access"
             $AccessControlList[$Identity] = $Access
         }
-        elseif($Ensure -eq "Present")
-        {
+        elseif ($Ensure -eq "Present") {
             Write-Verbose "Adding entry for $Identity with $Access"
             $AccessControlList.Add($Identity, $Access)
         }
@@ -120,8 +113,7 @@ function Set-TargetResource
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -131,21 +123,21 @@ function Test-TargetResource
         $Name,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet('PIDatabaseSecurity','PtSecurity','DataSecurity')]
+        [ValidateSet('PIDatabaseSecurity', 'PtSecurity', 'DataSecurity')]
         [System.String]
         $Type,
 
-		[parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Identity,
 
-        [ValidateSet("Read","Write","Read, Write","Read,Write","ReadWrite","r","w","r,w","rw","")]
+        [ValidateSet("Read", "Write", "Read, Write", "Read,Write", "ReadWrite", "r", "w", "r,w", "rw", "")]
         [System.String]
         $Access,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
-        $Ensure="Present",
+        $Ensure = "Present",
 
         [System.String]
         $PIDataArchive = "localhost"
@@ -156,8 +148,7 @@ function Test-TargetResource
     [System.Boolean]$result = $false
     $PIResource = Get-TargetResource -Name $Name -Type $Type -Identity $Identity -PIDataArchive $PIDataArchive
 
-    if($PIResource.Ensure -eq $Ensure -and ($PIResource.Access -eq $Access -or ([System.String]::IsNullOrEmpty($PIResource.Access) -and [System.String]::IsNullOrEmpty($Access))))
-    {
+    if ($PIResource.Ensure -eq $Ensure -and ($PIResource.Access -eq $Access -or ([System.String]::IsNullOrEmpty($PIResource.Access) -and [System.String]::IsNullOrEmpty($Access)))) {
         $result = $true
     }
     Write-Verbose "Test Desired State result: $result"
@@ -165,8 +156,7 @@ function Test-TargetResource
     return $result
 }
 
-function ConvertTo-CanonicalAccessString
-{
+function ConvertTo-CanonicalAccessString {
     param(
         [string]
         $Access
@@ -186,24 +176,21 @@ function ConvertTo-CanonicalAccessString
         ""            = ""
     }
 
-    if($AccessMapping.Contains($Access))
-    {
+    if ($AccessMapping.Contains($Access)) {
         $Access = $AccessMapping[$Access]
     }
-    else
-    {
+    else {
         throw "Invalid Access string '$Access' specified."
     }
 
     return $Access
 }
 
-function ConvertTo-PIAccessControlHashtable
-{
+function ConvertTo-PIAccessControlHashtable {
     [CmdletBinding()]
     [OutputType([System.Collections.HashTable])]
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [string]
         $String
     )
@@ -211,17 +198,15 @@ function ConvertTo-PIAccessControlHashtable
     Write-Verbose "Converting $String to Hashtable equivalent"
     $hashtableACL = @{}
     $aclEntries = $String.Split('|').Trim()
-    foreach ($entry in $aclEntries)
-    {
+    foreach ($entry in $aclEntries) {
         $splitEntry = $entry.Split(':').Trim()
         $Identity = $splitEntry[0]
-        switch($splitEntry[1])
-	    {
-            "A(r)"   { $Access = "Read"; break }
-            "A(w)"   { $Access = "Write"; break }
+        switch ($splitEntry[1]) {
+            "A(r)" { $Access = "Read"; break }
+            "A(w)" { $Access = "Write"; break }
             "A(r,w)" { $Access = "Read, Write"; break }
-            "A()"    { $Access = ""; break }
-            default  { throw "Invalid entry '$($splitEntry[1])' specified."}
+            "A()" { $Access = ""; break }
+            default { throw "Invalid entry '$($splitEntry[1])' specified."}
         }
         $hashtableACL.Add($Identity, $Access)
     }
@@ -229,19 +214,18 @@ function ConvertTo-PIAccessControlHashtable
     return $hashtableACL
 }
 
-function ConvertTo-PIAccessControlString
-{
+function ConvertTo-PIAccessControlString {
     [CmdletBinding()]
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.Collections.Hashtable]
         $Hashtable,
 
-        [ValidateSet('Present','Absent')]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Identity
     )
@@ -253,22 +237,18 @@ function ConvertTo-PIAccessControlString
     $identityDelimiter = ":"
     $entryDelimiter = "|"
     $Keys = $Hashtable.Keys | Sort-Object
-    foreach ($key in $Keys)
-    {
-        switch($Hashtable[$key])
-        {
-            "Read"        { $Access = "A(r)"; break }
-            "Write"       { $Access = "A(w)"; break }
+    foreach ($key in $Keys) {
+        switch ($Hashtable[$key]) {
+            "Read" { $Access = "A(r)"; break }
+            "Write" { $Access = "A(w)"; break }
             "Read, Write" { $Access = "A(r,w)"; break }
-            ""            { $Access = "A()"; break }
-            default       { throw "Invalid access string '$($Hashtable[$key])' specified."}
+            "" { $Access = "A()"; break }
+            default { throw "Invalid access string '$($Hashtable[$key])' specified."}
         }
-        if($key.ToLower() -eq $Identity.ToLower() -and $Ensure -eq 'Absent')
-        {
+        if ($key.ToLower() -eq $Identity.ToLower() -and $Ensure -eq 'Absent') {
             Write-Verbose "Omitting $Identity from Security string."
         }
-        else
-        {
+        else {
             $stringACL += $space + $key + $identityDelimiter + $space + $Access + $space + $entryDelimiter
         }
     }
@@ -279,17 +259,16 @@ function ConvertTo-PIAccessControlString
     return $stringACL
 }
 
-function Get-PIAccessControl
-{
+function Get-PIAccessControl {
     [CmdletBinding()]
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $PIDataArchive,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Name,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Type
     )
@@ -297,14 +276,12 @@ function Get-PIAccessControl
     [System.Collections.Hashtable]$AccessControlList = @{}
 
     Write-Verbose "Getting security on $Type\$Name as $Format"
-    if ($Type -eq "PIDatabaseSecurity")
-	{
+    if ($Type -eq "PIDatabaseSecurity") {
         $Security = Get-PIDatabasesecurityDSC -PIDataArchive $PIDataArchive -Name $Name
     }
-	else
-	{
+    else {
         $Security = Get-PIPointDSC -PIDataArchive $PIDataArchive -Name $Name -Type $Type
-	}
+    }
 
     Write-Verbose "Security on $Type\$Name returned: $Security"
     $AccessControlList = ConvertTo-PIAccessControlHashtable -String $Security
@@ -312,24 +289,23 @@ function Get-PIAccessControl
     return $AccessControlList
 }
 
-function Set-PIAccessControl
-{
+function Set-PIAccessControl {
     [CmdletBinding()]
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $PIDataArchive,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Name,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Type,
         [System.String]
         $Identity,
         [System.String]
         $Ensure,
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [System.Collections.Hashtable]
         $AccessControlList
     )
@@ -337,23 +313,20 @@ function Set-PIAccessControl
     [System.String]$Security = ConvertTo-PIAccessControlString -Hashtable $AccessControlList -Ensure $Ensure -Identity $Identity
 
     Write-Verbose "Setting security on $Type\$Name to: $Security"
-    if($Type -eq "PIDatabaseSecurity")
-    {
+    if ($Type -eq "PIDatabaseSecurity") {
         Set-PIDatabaseSecurityDSC -PIDataArchive $PIDataArchive -Name $Name -Security $Security -Verbose:$VerbosePreference
     }
-    else
-    {
+    else {
         Set-PIPointDSC -PIDataArchive $PIDataArchive -Name $Name -Type $Type -Security $Security -Verbose:$VerbosePreference
     }
 }
 
-function Get-PIDatabaseSecurityDSC
-{
+function Get-PIDatabaseSecurityDSC {
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $PIDataArchive,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Name
     )
@@ -362,16 +335,15 @@ function Get-PIDatabaseSecurityDSC
     return $PIResource
 }
 
-function Get-PIPointDSC
-{
+function Get-PIPointDSC {
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $PIDataArchive,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Name,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Type
     )
@@ -380,16 +352,15 @@ function Get-PIPointDSC
     return $PIResource
 }
 
-function Set-PIDatabaseSecurityDSC
-{
+function Set-PIDatabaseSecurityDSC {
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $PIDataArchive,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Name,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Security
     )
@@ -397,24 +368,23 @@ function Set-PIDatabaseSecurityDSC
     Set-PIDatabaseSecurity -Connection $Connection -Name $Name -Security $Security -Verbose:$VerbosePreference
 }
 
-function Set-PIPointDSC
-{
+function Set-PIPointDSC {
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $PIDataArchive,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Name,
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [System.String]
         $Type,
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [System.String]
         $Security
     )
     $Connection = Connect-PIDataArchive -PIDataArchiveMachineName $PIDataArchive
-    Set-PIPoint -Connection $Connection -Name $Name -Attributes @{ $Type.ToLower()=$Security } -Verbose:$VerbosePreference
+    Set-PIPoint -Connection $Connection -Name $Name -Attributes @{ $Type.ToLower() = $Security } -Verbose:$VerbosePreference
 }
 
 Export-ModuleMember -Function *-TargetResource

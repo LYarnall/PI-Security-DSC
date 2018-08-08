@@ -16,10 +16,9 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -37,16 +36,15 @@ function Get-TargetResource
     $Ensure = Get-PIResource_Ensure -PIResource $PIResource -Verbose:$VerbosePreference
 
     return @{
-                    Name = $PIResource.Name;
-                    Default = $PIResource.Default;
-                    Ensure = $Ensure;
-                    Value = $PIResource.Value;
-                    PIDataArchive = $PIDataArchive;
-            }
+        Name          = $PIResource.Name;
+        Default       = $PIResource.Default;
+        Ensure        = $Ensure;
+        Value         = $PIResource.Value;
+        PIDataArchive = $PIDataArchive;
+    }
 }
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
@@ -54,7 +52,7 @@ function Set-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
@@ -65,20 +63,17 @@ function Set-TargetResource
         $PIDataArchive = "localhost"
     )
 
-    if($Ensure -eq 'Absent')
-    {
+    if ($Ensure -eq 'Absent') {
         Write-Verbose "Resetting PITuningParameter: '$Name' to default value."
         Reset-PITuningParameterDSC -PIDataArchive $PIDataArchive -Name $Name
     }
-    else
-    {
+    else {
         Write-Verbose "Setting PITuningParameter '$Name' to $Value."
         Set-PITuningParameterDSC -PIDataArchive $PIDataArchive -Name $Name -Value $Value
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -87,7 +82,7 @@ function Test-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
@@ -101,18 +96,15 @@ function Test-TargetResource
     Write-Verbose "Testing PITuningParameter: '$Name'"
     $PIResource = Get-TargetResource -Name $Name -PIDataArchive $PIDataArchive
 
-    if($PIResource.Ensure -eq 'Present' -and $Ensure -eq 'Present')
-    {
+    if ($PIResource.Ensure -eq 'Present' -and $Ensure -eq 'Present') {
         return $($PIResource.Value -eq $Value -or (([System.String]::IsNullOrEmpty($PIResource.Value)) -and $PIResource.Default -eq $Value))
     }
-    else
-    {
+    else {
         return $($PIResource.Ensure -eq 'Absent' -and $Ensure -eq 'Absent')
     }
 }
 
-function Get-PITuningParameterDSC
-{
+function Get-PITuningParameterDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -126,8 +118,7 @@ function Get-PITuningParameterDSC
     return $PIResource
 }
 
-function Set-PITuningParameterDSC
-{
+function Set-PITuningParameterDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -143,8 +134,7 @@ function Set-PITuningParameterDSC
     Set-PITuningParameter -Connection $Connection -Name $Name -Value $Value
 }
 
-function Reset-PITuningParameterDSC
-{
+function Reset-PITuningParameterDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]

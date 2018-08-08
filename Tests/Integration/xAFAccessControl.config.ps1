@@ -15,49 +15,45 @@ Configuration xAFAccessControl_Set
         [System.String] $Collection = "Default"
     )
 
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        AFIdentity CreateIntegrationTempIdentity
-        {
-            Name = $Node.Identity
+        AFIdentity CreateIntegrationTempIdentity {
+            Name     = $Node.Identity
             AFServer = $Node.NodeName
-            Ensure = "Present"
+            Ensure   = "Present"
         }
 
-        AFAccessControl GrantAccess_DatabaseItem
-		{
-		    AFServer = $Node.NodeName
-            Path = "$($Node.Database)\$Collection"
-            Identity = $Node.Identity
-            Type = "AFSecurityItem"
-            Access = $Access
-            Ensure = "Present"
+        AFAccessControl GrantAccess_DatabaseItem {
+            AFServer  = $Node.NodeName
+            Path      = "$($Node.Database)\$Collection"
+            Identity  = $Node.Identity
+            Type      = "AFSecurityItem"
+            Access    = $Access
+            Ensure    = "Present"
             DependsOn = "[AFIdentity]CreateIntegrationTempIdentity"
-	    }
+        }
 
-        AFAccessControl GrantAccess_ServerItem
-		{
-		    AFServer = $Node.NodeName
-            Path = $Collection
-            Identity = $Node.Identity
-            Type = "AFSecurityItem"
-            Access = $Access
-            Ensure = "Present"
+        AFAccessControl GrantAccess_ServerItem {
+            AFServer  = $Node.NodeName
+            Path      = $Collection
+            Identity  = $Node.Identity
+            Type      = "AFSecurityItem"
+            Access    = $Access
+            Ensure    = "Present"
             DependsOn = "[AFIdentity]CreateIntegrationTempIdentity"
-	    }
+        }
 
-        AFAccessControl GrantAccess_Element
-		{
-		    AFServer = $Node.NodeName
-            Path = "$($Node.Database)\IntegrationTarget"
-            Identity = $Node.Identity
-            Type = "AFElement"
-            Access = $Access
-            Ensure = "Present"
+        AFAccessControl GrantAccess_Element {
+            AFServer  = $Node.NodeName
+            Path      = "$($Node.Database)\IntegrationTarget"
+            Identity  = $Node.Identity
+            Type      = "AFElement"
+            Access    = $Access
+            Ensure    = "Present"
             DependsOn = "[AFIdentity]CreateIntegrationTempIdentity"
-	    }
+        }
     }
 }
 
@@ -68,36 +64,33 @@ Configuration xAFAccessControl_Remove
         [System.String] $Collection = "Default"
     )
 
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node $NodeName
     {
-        AFAccessControl RevokeAccess_Database
-		{
-		    AFServer = $Node.NodeName
-            Path = "$($Node.Database)\$Collection"
+        AFAccessControl RevokeAccess_Database {
+            AFServer = $Node.NodeName
+            Path     = "$($Node.Database)\$Collection"
             Identity = $Node.Identity
-            Type = "AFSecurityItem"
-            Ensure = "Absent"
-	    }
+            Type     = "AFSecurityItem"
+            Ensure   = "Absent"
+        }
 
-        AFAccessControl RevokeAccess_Server
-		{
-		    AFServer = $Node.NodeName
-            Path = $Collection
+        AFAccessControl RevokeAccess_Server {
+            AFServer = $Node.NodeName
+            Path     = $Collection
             Identity = $Node.Identity
-            Type = "AFSecurityItem"
-            Ensure = "Absent"
-	    }
+            Type     = "AFSecurityItem"
+            Ensure   = "Absent"
+        }
 
-        AFAccessControl RevokeAccess_Element
-		{
-		    AFServer = $Node.NodeName
-            Path = "$($Node.Database)\IntegrationTarget"
+        AFAccessControl RevokeAccess_Element {
+            AFServer = $Node.NodeName
+            Path     = "$($Node.Database)\IntegrationTarget"
             Identity = $Node.Identity
-            Type = "AFElement"
-            Ensure = "Absent"
-	    }
+            Type     = "AFElement"
+            Ensure   = "Absent"
+        }
     }
 }
 
@@ -107,15 +100,14 @@ Configuration xAFAccessControl_CleanUp
         [System.String] $NodeName = "localhost"
     )
 
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node $NodeName
     {
-        AFIdentity RemoveIntegrationTempIdentity
-        {
-            Name = $Node.Identity
+        AFIdentity RemoveIntegrationTempIdentity {
+            Name     = $Node.Identity
             AFServer = $Node.NodeName
-            Ensure = "Absent"
+            Ensure   = "Absent"
         }
     }
 }

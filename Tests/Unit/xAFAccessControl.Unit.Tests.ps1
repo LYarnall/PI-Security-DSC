@@ -10,8 +10,7 @@ Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -P
 
 $TestEnvironment = Initialize-TestEnvironment -DSCModuleName $script:DSCModuleName -DSCResourceName $script:DSCResourceName
 
-function Invoke-TestSetup
-{
+function Invoke-TestSetup {
     $loaded = [System.Reflection.Assembly]::LoadWithPartialName("OSIsoft.AFSDK")
     if ($null -eq $loaded) {
         $ErrorActionPreference = 'Stop'
@@ -19,16 +18,14 @@ function Invoke-TestSetup
     }
 }
 
-function Invoke-TestCleanup
-{
+function Invoke-TestCleanup {
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
 }
 
 #endregion HEADER
 
 # Begin Testing
-try
-{
+try {
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
@@ -36,22 +33,20 @@ try
         $testAFServer = 'localhost'
         $defaultParameters = @{
             AFServer = $testAFServer
-            Path = "ExampleDatabase\Elements"
+            Path     = "ExampleDatabase\Elements"
             Identity = "UnitTester"
-            Type = "AFSecurityItem"
-            Access = "Read, Write, Read Data, Write Data"
-            Ensure = "Present"
+            Type     = "AFSecurityItem"
+            Access   = "Read, Write, Read Data, Write Data"
+            Ensure   = "Present"
         }
 
-        function Get-MockedSecurityObjectEntry
-        {
+        function Get-MockedSecurityObjectEntry {
             param(
                 [System.Collections.ArrayList] $InputEntries
             )
 
             $MockAFSecurityObject = New-Object "System.Collections.Generic.List[PSCustomObject]"
-            foreach($InputEntry in $InputEntries)
-            {
+            foreach ($InputEntry in $InputEntries) {
                 $Identity = New-Object PSCustomObject
                 $Identity | Add-Member -MemberType NoteProperty -Name Name -Value $InputEntry.Identity -TypeName string
                 $MockEntry = New-Object PSCustomObject
@@ -67,103 +62,103 @@ try
         }
 
         $BaseMockAccess = @{
-                            Name = 'UnitTester'
-                            Identity = 'UnitTester'
-                            AllowAccess = 'True'
-                        }
+            Name        = 'UnitTester'
+            Identity    = 'UnitTester'
+            AllowAccess = 'True'
+        }
 
         $DefaultAccess = @{}
         $DefaultAccess += $BaseMockAccess
-        $DefaultAccess.Add('Rights','Read, Write, Read Data, Write Data')
+        $DefaultAccess.Add('Rights', 'Read, Write, Read Data, Write Data')
 
         $WrongAccess = @{}
         $WrongAccess += $BaseMockAccess
-        $WrongAccess.Add('Rights','Read, Write, Read Data, Write Data, Delete, Annotate')
+        $WrongAccess.Add('Rights', 'Read, Write, Read Data, Write Data, Delete, Annotate')
 
         $MockAllAccess = @{}
         $MockAllAccess += $BaseMockAccess
-        $MockAllAccess.Add('Rights','All')
+        $MockAllAccess.Add('Rights', 'All')
 
         $NoAccess = @{}
 
         $OtherUserAccess = @{
-                             Name = 'Administrators'
-                             Identity = 'Administrators'
-                             AllowAccess = 'True'
-                             Rights = 'ReadWrite, Delete, Execute, Admin, ReadWriteData, Subscribe, SubscribeOthers, Annotate'
-                        }
+            Name        = 'Administrators'
+            Identity    = 'Administrators'
+            AllowAccess = 'True'
+            Rights      = 'ReadWrite, Delete, Execute, Admin, ReadWriteData, Subscribe, SubscribeOthers, Annotate'
+        }
 
         $testAbsentParameters = @{
             AFServer = $testAFServer
-            Path = "ExampleDatabase\Elements"
+            Path     = "ExampleDatabase\Elements"
             Identity = "UnitTester"
-            Type = "AFSecurityItem"
-            Access = "Read, Write, Read Data, Write Data"
-            Ensure = "Absent"
+            Type     = "AFSecurityItem"
+            Access   = "Read, Write, Read Data, Write Data"
+            Ensure   = "Absent"
         }
 
         $AllAccessParameters = @{
             AFServer = $testAFServer
-            Path = "ExampleDatabase\Elements"
+            Path     = "ExampleDatabase\Elements"
             Identity = "UnitTester"
-            Type = "AFSecurityItem"
-            Access = "Read, Write, Delete, Execute, Admin, Read Data, Write Data, Subscribe, Subscribe Others, Annotate"
-            Ensure = "Present"
+            Type     = "AFSecurityItem"
+            Access   = "Read, Write, Delete, Execute, Admin, Read Data, Write Data, Subscribe, Subscribe Others, Annotate"
+            Ensure   = "Present"
         }
 
         $testCases = @{
-            DesiredState = @{
-                Context = 'When the system is in the desired state'
+            DesiredState              = @{
+                Context         = 'When the system is in the desired state'
                 InputParameters = $defaultParameters
-                MockValues = @(
+                MockValues      = @(
                     $DefaultAccess,
                     $OtherUserAccess
                 )
-                Desired = $true
-                AddAccess = 0
-                RemoveAccess = 0
+                Desired         = $true
+                AddAccess       = 0
+                RemoveAccess    = 0
             }
-            DesiredStateAllAccess = @{
-                Context = 'When the system is in the desired state with full access'
+            DesiredStateAllAccess     = @{
+                Context         = 'When the system is in the desired state with full access'
                 InputParameters = $AllAccessParameters
-                MockValues = @(
+                MockValues      = @(
                     $MockAllAccess
                 )
-                Desired = $true
-                AddAccess = 0
-                RemoveAccess = 0
+                Desired         = $true
+                AddAccess       = 0
+                RemoveAccess    = 0
             }
-            NotDesiredStateAbsent = @{
-                Context = 'When the system is not in the desired state because the identity is absent.'
+            NotDesiredStateAbsent     = @{
+                Context         = 'When the system is not in the desired state because the identity is absent.'
                 InputParameters = $defaultParameters
-                MockValues = @( $OtherUserAccess )
-                Desired = $false
-                AddAccess = 1
-                RemoveAccess = 0
+                MockValues      = @( $OtherUserAccess )
+                Desired         = $false
+                AddAccess       = 1
+                RemoveAccess    = 0
             }
             NotDesiredStateWrongValue = @{
-                Context = 'When the system is not in the desired state because the identity has the wrong access.'
+                Context         = 'When the system is not in the desired state because the identity has the wrong access.'
                 InputParameters = $defaultParameters
-                MockValues = @( $WrongAccess )
-                Desired = $false
-                AddAccess = 1
-                RemoveAccess = 0
+                MockValues      = @( $WrongAccess )
+                Desired         = $false
+                AddAccess       = 1
+                RemoveAccess    = 0
             }
-            NotDesiredStatePresent = @{
-                Context = 'When the system is not in the desired state because the identity is present.'
+            NotDesiredStatePresent    = @{
+                Context         = 'When the system is not in the desired state because the identity is present.'
                 InputParameters = $testAbsentParameters
-                MockValues = @( $DefaultAccess )
-                Desired = $false
-                AddAccess = 0
-                RemoveAccess = 1
+                MockValues      = @( $DefaultAccess )
+                Desired         = $false
+                AddAccess       = 0
+                RemoveAccess    = 1
             }
-            NotDesiredStateEmptyACL = @{
-                Context = 'When the system is not in the desired state because the ACL is null.'
+            NotDesiredStateEmptyACL   = @{
+                Context         = 'When the system is not in the desired state because the ACL is null.'
                 InputParameters = $defaultParameters
-                MockValues = @( $NoAccess )
-                Desired = $false
-                AddAccess = 1
-                RemoveAccess = 0
+                MockValues      = @( $NoAccess )
+                Desired         = $false
+                AddAccess       = 1
+                RemoveAccess    = 0
             }
         }
 
@@ -171,8 +166,8 @@ try
         Describe "$TargetModule\Get-TargetResource" {
 
             Mock -CommandName Get-AFSecurityObject {
-                    return $null
-                }
+                return $null
+            }
 
             $testCase = $testCases["DesiredState"]
             Context $testCase.Context {
@@ -186,8 +181,7 @@ try
                 $result = Get-TargetResource -Type $InputParameters.Type -Path $InputParameters.Path -Identity $InputParameters.Identity -AFServer $InputParameters.AFServer
 
                 It 'Should return the same values passed' {
-                    foreach($parameter in $InputParameters.GetEnumerator())
-                    {
+                    foreach ($parameter in $InputParameters.GetEnumerator()) {
                         $result[$parameter.Key] | Should -Be $parameter.Value
                     }
                 }
@@ -215,8 +209,7 @@ try
             Mock -CommandName Remove-AFIdentityAccess -Verifiable
             Mock -CommandName Add-AFIdentityAccess -Verifiable
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName Get-AFSecurityObjectEntry {
@@ -225,9 +218,9 @@ try
                     }
                     $InputParameters = $testCase.InputParameters
 
-                    if($testCase.RemoveAccess -eq 1)
+                    if ($testCase.RemoveAccess -eq 1)
                     { $ItMessage = 'Should attempt to remove the identity' }
-                    elseif($testCase.AddAccess -eq 1)
+                    elseif ($testCase.AddAccess -eq 1)
                     { $ItMessage = 'Should attempt to add the identity' }
                     else
                     { $ItMessage = 'Should not attempt to set the value' }
@@ -243,8 +236,7 @@ try
 
         Describe "$TargetModule\Test-TargetResource" {
             # Run through all the test cases
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName Get-AFSecurityObjectEntry {
@@ -264,41 +256,41 @@ try
         Describe "$script:DSCResourceName\ConvertTo-CanonicalAFSecurityRight" {
 
             $abbreviatedValues = @(
-                    "r",
-                    "w",
-                    "d",
-                    "x",
-                    "a",
-                    "rd",
-                    "wd",
-                    "s",
-                    "so",
-                    "an"
-                )
+                "r",
+                "w",
+                "d",
+                "x",
+                "a",
+                "rd",
+                "wd",
+                "s",
+                "so",
+                "an"
+            )
             $componentValues = @(
-                    "Read",
-                    "Write",
-                    "Delete",
-                    "Execute",
-                    "Admin",
-                    "ReadData",
-                    "WriteData",
-                    "Subscribe",
-                    "SubscribeOthers",
-                    "Annotate"
-                )
+                "Read",
+                "Write",
+                "Delete",
+                "Execute",
+                "Admin",
+                "ReadData",
+                "WriteData",
+                "Subscribe",
+                "SubscribeOthers",
+                "Annotate"
+            )
             $specialValues = @(
-                    "",
-                    "None",
-                    "ReadWrite",
-                    "Read/Write",
-                    "Read Data",
-                    "Write Data",
-                    "Read/Write Data",
-                    "ReadWriteData",
-                    "Subscribe Others",
-                    "All"
-                )
+                "",
+                "None",
+                "ReadWrite",
+                "Read/Write",
+                "Read Data",
+                "Write Data",
+                "Read/Write Data",
+                "ReadWriteData",
+                "Subscribe Others",
+                "All"
+            )
 
             Context 'When supported values are input' {
 
@@ -313,15 +305,13 @@ try
 
             Context 'When supported compound values are input' {
                 $compoundValues = @()
-                for($i=0; $i -lt $abbreviatedValues.Length; $i++)
-                {
+                for ($i = 0; $i -lt $abbreviatedValues.Length; $i++) {
                     $compoundValues += $abbreviatedValues[0..$i] -join ","
                     $compoundValues += $abbreviatedValues[$i..$abbreviatedValues.Length] -join ","
                 }
 
                 It 'Should return AFSecurityRights enumeration that resolves to a string instead of an integer.' {
-                    foreach($compoundValue in $compoundValues)
-                    {
+                    foreach ($compoundValue in $compoundValues) {
                         [System.Boolean] $result = $false
                         $test = ConvertTo-CanonicalAFSecurityRight $compoundValue
                         [System.Int32]::TryParse($test.ToString(), [System.Globalization.NumberStyles]::Integer, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$result)
@@ -334,7 +324,7 @@ try
                 $UnsupportedValue = "Garbage"
 
                 It 'Should throw an error.' {
-                   { ConvertTo-CanonicalAFSecurityRight $UnsupportedValue } | Should -Throw "Invalid AFSecurityRight specified: $UnsupportedValue"
+                    { ConvertTo-CanonicalAFSecurityRight $UnsupportedValue } | Should -Throw "Invalid AFSecurityRight specified: $UnsupportedValue"
                 }
             }
         }
@@ -407,13 +397,12 @@ try
                 $UnsupportedValue = "Garbage"
 
                 It 'Should throw an error.' {
-                   { ConvertTo-CanonicalAFSecurityItem $UnsupportedValue } | Should -Throw "Invalid AFSecurityItem specified: $UnsupportedValue"
+                    { ConvertTo-CanonicalAFSecurityItem $UnsupportedValue } | Should -Throw "Invalid AFSecurityItem specified: $UnsupportedValue"
                 }
             }
         }
     }
 }
-finally
-{
+finally {
     Invoke-TestCleanup
 }

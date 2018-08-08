@@ -17,51 +17,45 @@
 
 #region - Internal Helper Functions
 
-	function GetScriptPath
-	{
-		$scriptFolder = (Get-Variable 'PSScriptRoot' -ErrorAction 'SilentlyContinue').Value
-		if(!$scriptFolder)
-		{
-			if($MyInvocation.MyCommand.Path)
-			{
-				$scriptFolder = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
-			}
-		}
-		if(!$scriptFolder)
-		{
-			if ($ExecutionContext.SessionState.Module.Path)
-			{
-				$scriptFolder = Split-Path (Split-Path $ExecutionContext.SessionState.Module.Path)
-			}
-		}
+function GetScriptPath {
+    $scriptFolder = (Get-Variable 'PSScriptRoot' -ErrorAction 'SilentlyContinue').Value
+    if (!$scriptFolder) {
+        if ($MyInvocation.MyCommand.Path) {
+            $scriptFolder = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
+        }
+    }
+    if (!$scriptFolder) {
+        if ($ExecutionContext.SessionState.Module.Path) {
+            $scriptFolder = Split-Path (Split-Path $ExecutionContext.SessionState.Module.Path)
+        }
+    }
 
-		# Return path.
-		return $scriptFolder
-	}
+    # Return path.
+    return $scriptFolder
+}
 
 #endregion
 
 Import-Module 'PSScriptAnalyzer'
 
 $targetFileTypes = @(
-                       '*.psm1',
-                       '*.ps1'
-                    )
+    '*.psm1',
+    '*.ps1'
+)
 $scriptPath = GetScriptPath
 $targetFiles = Get-ChildItem -Path (Split-Path ($scriptPath)) -Recurse -File -Include $targetFileTypes
 Write-Output "Found $($targetFiles.Count) files for analysis."
 $resultsFolderName = 'Results'
 $resultsFolder = Join-Path -Path $scriptPath -ChildPath $resultsFolderName
 
-if(!(Test-Path -Path $resultsFolder))
+if (!(Test-Path -Path $resultsFolder))
 { New-Item -Path $resultsFolder -ItemType Directory -Name $resultsFolderName }
 
 # Define set of rules to exclude from the analysis, globally.
 $excludedRules = @( 'PSUseShouldProcessForStateChangingFunctions' )
 
-foreach ($targetFile in $targetFiles)
-{
+foreach ($targetFile in $targetFiles) {
     $resultsFile = $(Join-Path -Path $resultsFolder -ChildPath ($targetFile.Name + '.staticanalysis.dat'))
     Write-Output "Analyzing $($targetFile.Name)"
-	Invoke-ScriptAnalyzer -Path $targetFile.FullName -ExcludeRule $excludedRules -ErrorAction SilentlyContinue | Out-File $resultsFile -Force
+    Invoke-ScriptAnalyzer -Path $targetFile.FullName -ExcludeRule $excludedRules -ErrorAction SilentlyContinue | Out-File $resultsFile -Force
 }

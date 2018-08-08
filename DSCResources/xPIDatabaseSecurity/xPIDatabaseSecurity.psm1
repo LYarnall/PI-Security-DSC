@@ -16,10 +16,9 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -36,16 +35,15 @@ function Get-TargetResource
     $Ensure = Get-PIResource_Ensure -PIResource $PIResource -Verbose:$VerbosePreference
 
     return @{
-                Security = $PIResource.Security.ToString()
-                Name = $Name
-                Ensure = $Ensure
-                PIDataArchive = $PIDataArchive
-            }
+        Security      = $PIResource.Security.ToString()
+        Name          = $Name
+        Ensure        = $Ensure
+        PIDataArchive = $PIDataArchive
+    }
 }
 
-function Set-TargetResource
-{
-    
+function Set-TargetResource {
+
     [CmdletBinding()]
     param
     (
@@ -56,7 +54,7 @@ function Set-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
@@ -64,26 +62,20 @@ function Set-TargetResource
         $PIDataArchive = "localhost"
     )
 
-    if($Ensure -eq 'Absent')
-    {
+    if ($Ensure -eq 'Absent') {
         throw "Removing PISecurityDatabase access control is not supported."
     }
-    else
-    {
-        if($Name -eq 'PIBATCHLEGACY')
-        {
-            if($(Get-Service pibatch -ComputerName $PIDataArchive).Status -ne 'Running')
-            {
+    else {
+        if ($Name -eq 'PIBATCHLEGACY') {
+            if ($(Get-Service pibatch -ComputerName $PIDataArchive).Status -ne 'Running') {
                 $msg = "PI Batch Subsystem must be running to edit database security for PIBATCHLEGACY"
                 $msg += " PI Batch Subsystem is no longer needed.  It is recommended to disable the service"
                 $msg += " and ignore the PIBATCHLEGACY database security entry."
                 throw $msg
             }
         }
-        elseif($Name -eq 'AFLINK')
-        {
-            if($(Get-Service piaflink -ComputerName $PIDataArchive).Status -eq 'Running')
-            {
+        elseif ($Name -eq 'AFLINK') {
+            if ($(Get-Service piaflink -ComputerName $PIDataArchive).Status -eq 'Running') {
                 $msg = "PI AF Link Subsystem must be running to edit database security for PIAFLINK"
                 $msg += " If the system does not require MDB synchronization, you can disable the service"
                 $msg += " and ignore the PIAFLINK database security entry."
@@ -94,8 +86,7 @@ function Set-TargetResource
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -107,7 +98,7 @@ function Test-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure,
 
@@ -117,18 +108,15 @@ function Test-TargetResource
 
     $PIResource = Get-TargetResource -Name $Name -PIDataArchive $PIDataArchive
 
-    if($PIResource.Ensure -eq 'Present' -and $Ensure -eq 'Present')
-    {
+    if ($PIResource.Ensure -eq 'Present' -and $Ensure -eq 'Present') {
         return $(Compare-PIDataArchiveACL -Desired $Security -Current $PIResource.Security -Verbose:$VerbosePreference)
     }
-    else
-    {
+    else {
         return $($PIResource.Ensure -eq 'Absent' -and $Ensure -eq 'Absent')
     }
 }
 
-function Get-PIDatabaseSecurityDSC
-{
+function Get-PIDatabaseSecurityDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -142,9 +130,8 @@ function Get-PIDatabaseSecurityDSC
     return $PIResource
 }
 
-function Set-PIDatabaseSecurityDSC
-{
-    
+function Set-PIDatabaseSecurityDSC {
+
     param(
         [System.String]
         $Security,

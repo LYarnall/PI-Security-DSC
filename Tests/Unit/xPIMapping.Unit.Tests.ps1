@@ -10,21 +10,18 @@ Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -P
 
 $TestEnvironment = Initialize-TestEnvironment -DSCModuleName $script:DSCModuleName -DSCResourceName $script:DSCResourceName
 
-function Invoke-TestSetup
-{
+function Invoke-TestSetup {
 
 }
 
-function Invoke-TestCleanup
-{
+function Invoke-TestCleanup {
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
 }
 
 #endregion HEADER
 
 # Begin Testing
-try
-{
+try {
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
@@ -32,102 +29,99 @@ try
         $TargetObject = 'PIMapping entry'
         $testPIDataArchive = 'localhost'
         $defaultParameters = @{
-                                PrincipalName = "Domain\UnitTestWindowsPrinciple"
-                                Description = "The correct description."
-                                Enabled = $true
-                                Ensure = "Present"
-                                Identity = "UnitTestIdentity"
-                                Name = "UnitTestMapping"
-                                PIDataArchive = $testPIDataArchive
+            PrincipalName = "Domain\UnitTestWindowsPrinciple"
+            Description   = "The correct description."
+            Enabled       = $true
+            Ensure        = "Present"
+            Identity      = "UnitTestIdentity"
+            Name          = "UnitTestMapping"
+            PIDataArchive = $testPIDataArchive
         }
         $testCases = @{
-            DesiredState = @{
-                Context = 'When the system is in the desired state'
+            DesiredState                      = @{
+                Context         = 'When the system is in the desired state'
                 InputParameters = $defaultParameters
-                MockValue = @{
-                                PrincipalName = "Domain\UnitTestWindowsPrinciple"
-                                Description = "The correct description."
-                                Enabled = $true
-                                Ensure = "Present"
-                                Identity = "UnitTestIdentity"
-                                Name = "UnitTestMapping"
-                                PIDataArchive = $testPIDataArchive
+                MockValue       = @{
+                    PrincipalName = "Domain\UnitTestWindowsPrinciple"
+                    Description   = "The correct description."
+                    Enabled       = $true
+                    Ensure        = "Present"
+                    Identity      = "UnitTestIdentity"
+                    Name          = "UnitTestMapping"
+                    PIDataArchive = $testPIDataArchive
                 }
-                Desired = $true
-                Verb = "Set"
+                Desired         = $true
+                Verb            = "Set"
             }
-            NotDesiredStateAbsent = @{
-                Context = "When the system is not in the desired state because the $TargetObject is absent"
+            NotDesiredStateAbsent             = @{
+                Context         = "When the system is not in the desired state because the $TargetObject is absent"
                 InputParameters = $defaultParameters
-                MockValue = $null
-                Desired = $false
-                Verb = "Add"
+                MockValue       = $null
+                Desired         = $false
+                Verb            = "Add"
             }
-            NotDesiredStatePresent = @{
-                Context = "When the system is not in the desired state because the $TargetObject is present"
+            NotDesiredStatePresent            = @{
+                Context         = "When the system is not in the desired state because the $TargetObject is present"
                 InputParameters = @{
-                                PIDataArchive = $testPIDataArchive
-                                Ensure = "Absent"
-                                PrincipalName = "Domain\UnitTestWindowsPrinciple"
+                    PIDataArchive = $testPIDataArchive
+                    Ensure        = "Absent"
+                    PrincipalName = "Domain\UnitTestWindowsPrinciple"
                 }
-                MockValue = $defaultParameters
-                Desired = $false
-                Verb = "Remove"
+                MockValue       = $defaultParameters
+                Desired         = $false
+                Verb            = "Remove"
             }
             NotDesiredStateIncorrectParameter = @{
-                Context = 'When the system is not in the desired state because a parameter is incorrect'
+                Context         = 'When the system is not in the desired state because a parameter is incorrect'
                 InputParameters = $defaultParameters
-                MockValue = @{
-                                PrincipalName = "Domain\UnitTestWindowsPrinciple"
-                                Description = "The wrong description!!!"
-                                Enabled = $true
-                                Ensure = "Present"
-                                Identity = "UnitTestIdentity"
-                                Name = "UnitTestMapping"
-                                PIDataArchive = $testPIDataArchive
-                    }
-                Desired = $false
-                Verb = "Set"
-            }
-            NotDesiredStateRename = @{
-                Context = 'When the system is not in the desired state because it has the wrong name'
-                InputParameters = $defaultParameters
-                MockValue = @{
-                                PrincipalName = "Domain\UnitTestWindowsPrinciple"
-                                Description = "The wrong description!!!"
-                                Enabled = $true
-                                Ensure = "Present"
-                                Identity = "UnitTestIdentity"
-                                Name = "UnitTestMapping_Incorrect"
-                                PIDataArchive = $testPIDataArchive
-                    }
-                Desired = $false
-                Verb = "Rename"
-            }
-            DesiredStateAbsent = @{
-                Context = 'When the system is in the desired state because it is absent'
-                InputParameters = @{
-                                PIDataArchive = $testPIDataArchive
-                                Ensure = "Absent"
-                                PrincipalName = "Domain\UnitTestWindowsPrinciple"
+                MockValue       = @{
+                    PrincipalName = "Domain\UnitTestWindowsPrinciple"
+                    Description   = "The wrong description!!!"
+                    Enabled       = $true
+                    Ensure        = "Present"
+                    Identity      = "UnitTestIdentity"
+                    Name          = "UnitTestMapping"
+                    PIDataArchive = $testPIDataArchive
                 }
-                MockValue = $null
-                Desired = $true
-                Verb = "Remove"
+                Desired         = $false
+                Verb            = "Set"
+            }
+            NotDesiredStateRename             = @{
+                Context         = 'When the system is not in the desired state because it has the wrong name'
+                InputParameters = $defaultParameters
+                MockValue       = @{
+                    PrincipalName = "Domain\UnitTestWindowsPrinciple"
+                    Description   = "The wrong description!!!"
+                    Enabled       = $true
+                    Ensure        = "Present"
+                    Identity      = "UnitTestIdentity"
+                    Name          = "UnitTestMapping_Incorrect"
+                    PIDataArchive = $testPIDataArchive
+                }
+                Desired         = $false
+                Verb            = "Rename"
+            }
+            DesiredStateAbsent                = @{
+                Context         = 'When the system is in the desired state because it is absent'
+                InputParameters = @{
+                    PIDataArchive = $testPIDataArchive
+                    Ensure        = "Absent"
+                    PrincipalName = "Domain\UnitTestWindowsPrinciple"
+                }
+                MockValue       = $null
+                Desired         = $true
+                Verb            = "Remove"
             }
         }
 
-        function Get-MockedResource
-        {
+        function Get-MockedResource {
             param(
                 [System.Collections.Hashtable] $InputEntry
             )
-            if($null -eq $InputEntry)
-            {
+            if ($null -eq $InputEntry) {
                 $MockResource = $null
             }
-            else
-            {
+            else {
                 $MockResource = New-Object PSCustomObject
                 $MockResource | Add-Member -MemberType NoteProperty -Name IsEnabled -Value $InputEntry.Enabled -TypeName boolean
                 $MockResource | Add-Member -MemberType NoteProperty -Name Ensure -Value $InputEntry.Ensure -TypeName string
@@ -157,16 +151,14 @@ try
                 $result = Get-TargetResource -PIDataArchive $InputParameters.PIDataArchive -PrincipalName $InputParameters.PrincipalName
 
                 It 'Should return the same values passed' {
-                    foreach($parameter in $InputParameters.GetEnumerator())
-                    {
+                    foreach ($parameter in $InputParameters.GetEnumerator()) {
                         $result[$parameter.Key] | Should -Be $parameter.Value
                     }
                 }
             }
 
-            $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
-            foreach($AbsentCase in $AbsentCases)
-            {
+            $AbsentCases = @('DesiredStateAbsent', 'NotDesiredStateAbsent')
+            foreach ($AbsentCase in $AbsentCases) {
                 $testCase = $testCases[$AbsentCase]
                 Context $testCase.Context {
                     Mock -CommandName "Get-$CommandNoun" {
@@ -191,8 +183,7 @@ try
             Mock -CommandName "Set-$CommandNoun" -Verifiable
             Mock -CommandName "Rename-$CommandNoun" -Verifiable
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName "Get-$CommandNoun" {
@@ -211,8 +202,7 @@ try
 
         Describe "$TargetModule\Test-TargetResource" {
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName "Get-$CommandNoun" {
@@ -229,7 +219,6 @@ try
         }
     }
 }
-finally
-{
+finally {
     Invoke-TestCleanup
 }

@@ -46,94 +46,84 @@ $tl = @('RightSyntax','WrongSyntax')
 #region - Parameters declaration.
 [CmdletBinding()]
 param(
-		[parameter(Mandatory = $false)]
-		[String]
-		$TestNameFilter = '*',
+    [parameter(Mandatory = $false)]
+    [String]
+    $TestNameFilter = '*',
 
-		[parameter(Mandatory = $false)]
-		[String[]]
-		$TagList = @(),
+    [parameter(Mandatory = $false)]
+    [String[]]
+    $TagList = @(),
 
-        [ValidateSet('Unit','Integration','All')]
-        [parameter(Mandatory = $false)]
-		[String]
-		$TestType = 'All'
+    [ValidateSet('Unit', 'Integration', 'All')]
+    [parameter(Mandatory = $false)]
+    [String]
+    $TestType = 'All'
 )
 
 #endregion
 
 #region - Internal Helper Functions
 
-function GetScriptPath
-{
-	$scriptFolder = (Get-Variable 'PSScriptRoot' -ErrorAction 'SilentlyContinue').Value
-	if(!$scriptFolder)
-	{
-		if($MyInvocation.MyCommand.Path)
-		{
-			$scriptFolder = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
-		}
-	}
-	if(!$scriptFolder)
-	{
-		if ($ExecutionContext.SessionState.Module.Path)
-		{
-			$scriptFolder = Split-Path (Split-Path $ExecutionContext.SessionState.Module.Path)
-		}
-	}
+function GetScriptPath {
+    $scriptFolder = (Get-Variable 'PSScriptRoot' -ErrorAction 'SilentlyContinue').Value
+    if (!$scriptFolder) {
+        if ($MyInvocation.MyCommand.Path) {
+            $scriptFolder = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
+        }
+    }
+    if (!$scriptFolder) {
+        if ($ExecutionContext.SessionState.Module.Path) {
+            $scriptFolder = Split-Path (Split-Path $ExecutionContext.SessionState.Module.Path)
+        }
+    }
 
-	# Return path.
-	return $scriptFolder
+    # Return path.
+    return $scriptFolder
 }
 
 #endregion
 
 #region - Main routine
 
-try
-{
-	# Define paths.
-	$rootFolder = GetScriptPath
+try {
+    # Define paths.
+    $rootFolder = GetScriptPath
     $unitTestFolder = Join-Path -Path $rootFolder -ChildPath 'Unit'
     $integrationTestFolder = Join-Path -Path $rootFolder -ChildPath 'Integration'
 
-	# Import the Pester module.
-	try
-    {
-	    # Get module.
-	    $modulesObj = Get-Module | Where-Object { $_.Name -match '^pester$' }
+    # Import the Pester module.
+    try {
+        # Get module.
+        $modulesObj = Get-Module | Where-Object { $_.Name -match '^pester$' }
 
-	    # Set flags.
-	    $notLoaded = ($modulesObj.Count -eq 0)
-	    $multipleLoaded = ($modulesObj.Count -gt 1)
+        # Set flags.
+        $notLoaded = ($modulesObj.Count -eq 0)
+        $multipleLoaded = ($modulesObj.Count -gt 1)
 
-	    if($multipleLoaded)
-	    {
-		    $msg = "Multiple instances of 'Pester' have been detected"
-		    Throw $msg
-	    }
-	    elseif($notLoaded)
-	    { Import-Module 'Pester' -Force }
+        if ($multipleLoaded) {
+            $msg = "Multiple instances of 'Pester' have been detected"
+            Throw $msg
+        }
+        elseif ($notLoaded)
+        { Import-Module 'Pester' -Force }
 
     }
     catch
     { Throw }
 
-	# Show message at console.
-	if($TagList.Count -eq 0)
-	{ $msg = 'Execute all tests found with *.tests.ps1 extension' }
-	else
-	{ $msg = 'Execute tests matching theses tags: {0} and found with *.tests.ps1 extension' -f ($TagList -Join ', ')}
-	Write-Output $msg
+    # Show message at console.
+    if ($TagList.Count -eq 0)
+    { $msg = 'Execute all tests found with *.tests.ps1 extension' }
+    else
+    { $msg = 'Execute tests matching theses tags: {0} and found with *.tests.ps1 extension' -f ($TagList -Join ', ')}
+    Write-Output $msg
 
     $scriptsToRun = @()
-	# https://github.com/pester/Pester/wiki/Invoke-Pester
-    if($TestType -in @('Unit','All'))
-    {
-	    $scriptsToRun += Get-ChildItem $unitTestFolder -file -Include '*.tests.ps1' -Recurse | Select-Object -ExpandProperty FullName
+    # https://github.com/pester/Pester/wiki/Invoke-Pester
+    if ($TestType -in @('Unit', 'All')) {
+        $scriptsToRun += Get-ChildItem $unitTestFolder -file -Include '*.tests.ps1' -Recurse | Select-Object -ExpandProperty FullName
     }
-    if($TestType -in @('Integration','All'))
-    {
+    if ($TestType -in @('Integration', 'All')) {
         $scriptsToRun += Get-ChildItem $integrationTestFolder -file -Include '*.tests.ps1' -Recurse | Select-Object -ExpandProperty FullName
     }
 

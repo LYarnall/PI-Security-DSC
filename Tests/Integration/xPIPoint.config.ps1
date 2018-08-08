@@ -2,7 +2,7 @@ $ConfigurationData = @{
     AllNodes = @(
         @{
             NodeName = 'localhost'
-            Name = "Sinusoid"
+            Name     = "Sinusoid"
         }
     )
 }
@@ -14,32 +14,30 @@ Configuration xPIPoint_Set
         [System.String] $PtSecurity
     )
 
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        PIPoint xPIPoint_SetIntegration
-        {
-            Name = $Node.Name
-            DataSecurity = $DataSecurity
-            Ensure = "Present"
+        PIPoint xPIPoint_SetIntegration {
+            Name          = $Node.Name
+            DataSecurity  = $DataSecurity
+            Ensure        = "Present"
             PIDataArchive = $Node.NodeName
-            PtSecurity = $PtSecurity
-        } 
+            PtSecurity    = $PtSecurity
+        }
     }
 }
 
 Configuration xPIPoint_Remove
 {
     param()
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        PIPoint xPIPoint_RemoveIntegration
-        {
-            Name = $Node.Name
-            Ensure = "Absent"
+        PIPoint xPIPoint_RemoveIntegration {
+            Name          = $Node.Name
+            Ensure        = "Absent"
             PIDataArchive = $Node.NodeName
         }
     }

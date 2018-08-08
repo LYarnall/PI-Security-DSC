@@ -16,10 +16,9 @@
 # ************************************************************************
 
 Import-Module -Name (Join-Path -Path (Split-Path $PSScriptRoot -Parent) `
-                               -ChildPath 'CommonResourceHelper.psm1')
+        -ChildPath 'CommonResourceHelper.psm1')
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -39,18 +38,17 @@ function Get-TargetResource
     $Ensure = Get-PIResource_Ensure -PIResource $identity -Verbose:$VerbosePreference
 
     $returnValue = @{
-        AFServer = $AFServer;
-        Name = $identity.Name;
+        AFServer    = $AFServer;
+        Name        = $identity.Name;
         Description = $identity.Description;
-        IsEnabled = $identity.IsEnabled;
-        Ensure = $Ensure;
+        IsEnabled   = $identity.IsEnabled;
+        Ensure      = $Ensure;
     }
 
     $returnValue
 }
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
@@ -65,7 +63,7 @@ function Set-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure = "Present",
 
@@ -75,10 +73,8 @@ function Set-TargetResource
 
     $PIResource = Get-TargetResource -Name $Name -AFServer $AFServer
 
-    if($Ensure -eq "Present")
-    {
-        if($PIResource.Ensure -eq "Present")
-        {
+    if ($Ensure -eq "Present") {
+        if ($PIResource.Ensure -eq "Present") {
             <# Since the identity is present, we must perform due diligence to preserve settings
             not explicitly defined in the config. Remove $PSBoundParameters and those not used
             for the write operation (Ensure, AFServer). #>
@@ -86,29 +82,25 @@ function Set-TargetResource
             $ParametersToOmit | Foreach-Object { $null = $PIResource.Remove($_) }
 
             # Set the parameter values we want to keep to the current resource values.
-            Foreach($Parameter in $PIResource.GetEnumerator())
-            {
+            Foreach ($Parameter in $PIResource.GetEnumerator()) {
                 Set-Variable -Name $Parameter.Key -Value $Parameter.Value -Scope Local
             }
 
             Write-Verbose "Setting AF Identity '$Name'"
             Set-AFIdentityDSC -AFServer $AFServer -Name $Name -Description $Description -IsEnabled $IsEnabled
         }
-        else
-        {
+        else {
             Write-Verbose "Adding AF Identity '$Name'"
             Add-AFIdentityDSC -AFServer $AFServer -Name $Name -Description $Description -IsEnabled $IsEnabled
         }
     }
-    else
-    {
+    else {
         Write-Verbose "Removing AF Identity '$Name'"
         Remove-AFIdentityDSC -AFServer $AFServer -Name $Name -Description $Description -IsEnabled $IsEnabled
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -124,7 +116,7 @@ function Test-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure = "Present",
 
@@ -138,8 +130,7 @@ function Test-TargetResource
     return (Compare-PIResourcePropertyCollection -Desired $PSBoundParameters -Current $PIResource)
 }
 
-function Set-AFIdentityDSC
-{
+function Set-AFIdentityDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -163,8 +154,7 @@ function Set-AFIdentityDSC
     $identity.CheckIn()
 }
 
-function Add-AFIdentityDSC
-{
+function Add-AFIdentityDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]
@@ -188,8 +178,7 @@ function Add-AFIdentityDSC
     $identity.CheckIn()
 }
 
-function Remove-AFIdentityDSC
-{
+function Remove-AFIdentityDSC {
     param(
         [parameter(Mandatory = $true)]
         [System.String]

@@ -10,21 +10,18 @@ Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -P
 
 $TestEnvironment = Initialize-TestEnvironment -DSCModuleName $script:DSCModuleName -DSCResourceName $script:DSCResourceName
 
-function Invoke-TestSetup
-{
+function Invoke-TestSetup {
 
 }
 
-function Invoke-TestCleanup
-{
+function Invoke-TestCleanup {
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
 }
 
 #endregion HEADER
 
 # Begin Testing
-try
-{
+try {
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
@@ -32,119 +29,115 @@ try
         $TargetObject = 'AFAttribute entry'
         $testAFServer = 'localhost'
         $baseParameters = @{
-                                AFServer = $testAFServer
-                                ElementPath = "UnitTestingDatabase\UnitTestingRootElement"
-                                Name = "UnitTestingAttribute"
-                                Ensure = "Present"
+            AFServer    = $testAFServer
+            ElementPath = "UnitTestingDatabase\UnitTestingRootElement"
+            Name        = "UnitTestingAttribute"
+            Ensure      = "Present"
         }
         $defaultParameters = $baseParameters.Clone()
-        $defaultParameters.Add("IsArray",$false)
-        $defaultParameters.Add("Type","String")
-        $defaultParameters.Add("Value",@("test"))
+        $defaultParameters.Add("IsArray", $false)
+        $defaultParameters.Add("Type", "String")
+        $defaultParameters.Add("Value", @("test"))
         $boolParameters = $baseParameters.Clone()
-        $boolParameters.Add("IsArray",$false)
-        $boolParameters.Add("Type","Boolean")
-        $boolParameters.Add("Value",@("True"))
+        $boolParameters.Add("IsArray", $false)
+        $boolParameters.Add("Type", "Boolean")
+        $boolParameters.Add("Value", @("True"))
         $stringArrayParameters = $baseParameters.Clone()
-        $stringArrayParameters.Add("IsArray",$true)
-        $stringArrayParameters.Add("Type","String")
-        $stringArrayParameters.Add("Value",@("One","Two"))
+        $stringArrayParameters.Add("IsArray", $true)
+        $stringArrayParameters.Add("Type", "String")
+        $stringArrayParameters.Add("Value", @("One", "Two"))
         $wrongStringArrayParameters = $stringArrayParameters.Clone()
-        $wrongStringArrayParameters["Value"] = @("Won","Two")
+        $wrongStringArrayParameters["Value"] = @("Won", "Two")
         $testCases = @{
-            DesiredState = @{
-                Context = 'When the system is in the desired state'
+            DesiredState                      = @{
+                Context         = 'When the system is in the desired state'
                 InputParameters = $defaultParameters
-                MockValue = $defaultParameters.Clone()
-                Desired = $true
-                Verb = "Set"
+                MockValue       = $defaultParameters.Clone()
+                Desired         = $true
+                Verb            = "Set"
             }
-            DesiredStateBool = @{
-                Context = 'When the system is in the desired state with boolean values'
+            DesiredStateBool                  = @{
+                Context         = 'When the system is in the desired state with boolean values'
                 InputParameters = $boolParameters
-                MockValue = $boolParameters.Clone()
-                Desired = $true
-                Verb = "Set"
+                MockValue       = $boolParameters.Clone()
+                Desired         = $true
+                Verb            = "Set"
             }
-            NotDesiredStateStringArray = @{
-                Context = 'When the system is not in the desired state because of the wrong string array'
+            NotDesiredStateStringArray        = @{
+                Context         = 'When the system is not in the desired state because of the wrong string array'
                 InputParameters = $stringArrayParameters
-                MockValue = $wrongStringArrayParameters
-                Desired = $false
-                Verb = "Set"
+                MockValue       = $wrongStringArrayParameters
+                Desired         = $false
+                Verb            = "Set"
             }
-            NotDesiredStateTypeMismatch = @{
-                Context = 'When the system is not in the desired state because of the wrong value type'
+            NotDesiredStateTypeMismatch       = @{
+                Context         = 'When the system is not in the desired state because of the wrong value type'
                 InputParameters = $stringArrayParameters
-                MockValue = $boolParameters
-                Desired = $false
-                Verb = "Set"
+                MockValue       = $boolParameters
+                Desired         = $false
+                Verb            = "Set"
             }
-            NotDesiredStateAbsent = @{
-                Context = "When the system is not in the desired state because the $TargetObject is absent"
+            NotDesiredStateAbsent             = @{
+                Context         = "When the system is not in the desired state because the $TargetObject is absent"
                 InputParameters = $defaultParameters
-                MockValue = $null
-                Desired = $false
-                Verb = "Add"
+                MockValue       = $null
+                Desired         = $false
+                Verb            = "Add"
             }
-            NotDesiredStatePresent = @{
-                Context = "When the system is not in the desired state because the $TargetObject is present"
+            NotDesiredStatePresent            = @{
+                Context         = "When the system is not in the desired state because the $TargetObject is present"
                 InputParameters = @{
-                                AFServer = $testAFServer
-                                ElementPath = "UnitTestingDatabase\UnitTestingRootElement"
-                                Name = "UnitTestingAttribute"
-                                Ensure = "Absent"
-                                IsArray = $false
-                                Type = "String"
-                                Value = @("test")
+                    AFServer    = $testAFServer
+                    ElementPath = "UnitTestingDatabase\UnitTestingRootElement"
+                    Name        = "UnitTestingAttribute"
+                    Ensure      = "Absent"
+                    IsArray     = $false
+                    Type        = "String"
+                    Value       = @("test")
                 }
-                MockValue = $defaultParameters
-                Desired = $false
-                Verb = "Remove"
+                MockValue       = $defaultParameters
+                Desired         = $false
+                Verb            = "Remove"
             }
             NotDesiredStateIncorrectParameter = @{
-                Context = 'When the system is not in the desired state because a parameter is incorrect'
+                Context         = 'When the system is not in the desired state because a parameter is incorrect'
                 InputParameters = $defaultParameters
-                MockValue = @{
-                                AFServer = $testAFServer
-                                ElementPath = "UnitTestingDatabase\UnitTestingRootElement"
-                                Name = "UnitTestingAttribute"
-                                Ensure = "Present"
-                                IsArray = $false
-                                Type = "String"
-                                Value = @("Wrong")
-                    }
-                Desired = $false
-                Verb = "Set"
-            }
-            DesiredStateAbsent = @{
-                Context = 'When the system is in the desired state because it is absent'
-                InputParameters = @{
-                                AFServer = $testAFServer
-                                ElementPath = "UnitTestingDatabase\UnitTestingRootElement"
-                                Name = "UnitTestingAttribute"
-                                Ensure = "Absent"
+                MockValue       = @{
+                    AFServer    = $testAFServer
+                    ElementPath = "UnitTestingDatabase\UnitTestingRootElement"
+                    Name        = "UnitTestingAttribute"
+                    Ensure      = "Present"
+                    IsArray     = $false
+                    Type        = "String"
+                    Value       = @("Wrong")
                 }
-                MockValue = $null
-                Desired = $true
-                Verb = "None"
+                Desired         = $false
+                Verb            = "Set"
+            }
+            DesiredStateAbsent                = @{
+                Context         = 'When the system is in the desired state because it is absent'
+                InputParameters = @{
+                    AFServer    = $testAFServer
+                    ElementPath = "UnitTestingDatabase\UnitTestingRootElement"
+                    Name        = "UnitTestingAttribute"
+                    Ensure      = "Absent"
+                }
+                MockValue       = $null
+                Desired         = $true
+                Verb            = "None"
             }
         }
 
-        function Get-MockedResource
-        {
+        function Get-MockedResource {
             param(
                 [System.Collections.Hashtable] $InputEntry
             )
-            if($null -eq $InputEntry)
-            {
+            if ($null -eq $InputEntry) {
                 $MockResource = $null
             }
-            else
-            {
+            else {
                 $MockTypeName = $InputEntry.Type
-                if($InputEntry.IsArray)
-                {
+                if ($InputEntry.IsArray) {
                     $MockTypeName += "[]"
                 }
                 $MockType = New-Object PSCustomObject
@@ -157,8 +150,7 @@ try
             return $MockResource
         }
 
-        function Get-MockedResourceValue
-        {
+        function Get-MockedResourceValue {
             param(
                 [System.Collections.Hashtable] $InputEntry
             )
@@ -181,16 +173,14 @@ try
                 $result = Get-TargetResource -Ensure $InputParameters.Ensure -ElementPath $InputParameters.ElementPath -Name $InputParameters.Name -AFServer $InputParameters.AFServer
 
                 It 'Should return the same values passed' {
-                    foreach($parameter in $InputParameters.GetEnumerator())
-                    {
+                    foreach ($parameter in $InputParameters.GetEnumerator()) {
                         $result[$parameter.Key] | Should -Be $parameter.Value
                     }
                 }
             }
 
-            $AbsentCases = @('DesiredStateAbsent','NotDesiredStateAbsent')
-            foreach($AbsentCase in $AbsentCases)
-            {
+            $AbsentCases = @('DesiredStateAbsent', 'NotDesiredStateAbsent')
+            foreach ($AbsentCase in $AbsentCases) {
                 $testCase = $testCases[$AbsentCase]
                 Context $testCase.Context {
                     Mock -CommandName "Get-AFAttributeDSC" {
@@ -217,8 +207,7 @@ try
             Mock -CommandName "Remove-AFAttributeDSC" -Verifiable
             Mock -CommandName "Set-AFAttributeDSC" -Verifiable
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName "Get-AFAttributeDSC" {
@@ -232,14 +221,12 @@ try
 
                     It "Should attempt to $($testCase.Verb) the $TargetObject" {
                         Set-TargetResource @InputParameters
-                        if($testCase.Verb -eq 'None')
-                        {
+                        if ($testCase.Verb -eq 'None') {
                             Assert-MockCalled -CommandName ("Add-AFAttributeDSC") -Exactly 0 -Scope It
                             Assert-MockCalled -CommandName ("Remove-AFAttributeDSC") -Exactly 0 -Scope It
                             Assert-MockCalled -CommandName ("Set-AFAttributeDSC") -Exactly 0 -Scope It
                         }
-                        else
-                        {
+                        else {
                             Assert-MockCalled -CommandName ($testCase.Verb + "-AFAttributeDSC") -Exactly 1 -Scope It
                         }
                     }
@@ -249,8 +236,7 @@ try
 
         Describe "$TargetModule\Test-TargetResource" {
 
-            foreach($key in $testCases.Keys)
-            {
+            foreach ($key in $testCases.Keys) {
                 $testCase = $testCases[$key]
                 Context $testCase.Context {
                     Mock -CommandName "Get-AFAttributeDSC" {
@@ -271,20 +257,19 @@ try
 
         Describe "$TargetModule\ConvertFrom-TypeString" {
             $SupportedTypeNames = @(
-                    "Boolean",
-                    "Byte",
-                    "DateTime",
-                    "Double",
-                    "Int16",
-                    "Int32",
-                    "Int64",
-                    "Single",
-                    "String"
-                )
+                "Boolean",
+                "Byte",
+                "DateTime",
+                "Double",
+                "Int16",
+                "Int32",
+                "Int64",
+                "Single",
+                "String"
+            )
             Context 'When supported array values are entered' {
 
-                foreach($SupportedTypeName in $SupportedTypeNames)
-                {
+                foreach ($SupportedTypeName in $SupportedTypeNames) {
                     It "Should return an array of type $SupportedTypeName" {
                         $result = ConvertFrom-TypeString -TypeName $SupportedTypeName -IsArray $true
                         $result.BaseType.Name | Should -Be 'Array'
@@ -294,15 +279,13 @@ try
             }
             Context 'When supported non-array values are entered' {
 
-                foreach($SupportedTypeName in $SupportedTypeNames)
-                {
+                foreach ($SupportedTypeName in $SupportedTypeNames) {
                     It "Should return a ValueType of type $SupportedTypeName" {
                         $result = ConvertFrom-TypeString -TypeName $SupportedTypeName -IsArray $false
-                        if($SupportedTypeName -eq 'String'){
+                        if ($SupportedTypeName -eq 'String') {
                             $result.BaseType.Name | Should -Be 'object'
                         }
-                        else
-                        {
+                        else {
                             $result.BaseType.Name | Should -Be 'ValueType'
                         }
                         $result.Name | Should -Be $SupportedTypeName
@@ -312,7 +295,6 @@ try
         }
     }
 }
-finally
-{
+finally {
     Invoke-TestCleanup
 }

@@ -13,8 +13,8 @@ Configuration xPITuningParameter_Set
         [System.String] $Value
     )
 
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
         PITuningParameter xPITuningParameter_SetIntegration
@@ -23,15 +23,15 @@ Configuration xPITuningParameter_Set
             Ensure = "Present"
             PIDataArchive = $Node.NodeName
             Value = $Value
-        } 
+        }
     }
 }
 
 Configuration xPITuningParameter_Remove
 {
     param()
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
         PIIdentity xPITuningParameter_RemoveIntegration
@@ -39,6 +39,6 @@ Configuration xPITuningParameter_Remove
             Name = $Node.Name
             Ensure = "Absent"
             PIDataArchive = $Node.NodeName
-        } 
+        }
     }
 }

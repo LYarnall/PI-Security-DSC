@@ -2,7 +2,7 @@ $ConfigurationData = @{
     AllNodes = @(
         @{
             NodeName = 'localhost'
-            Name = "TrustIntegration"
+            Name     = "TrustIntegration"
         }
     )
 }
@@ -21,35 +21,33 @@ Configuration xPITrust_Set
         [System.String] $WindowsDomain
     )
 
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        PIIdentity $Node.Name
-        {
-            Name = $Node.Name
+        PIIdentity $Node.Name {
+            Name             = $Node.Name
             AllowUseInTrusts = $true
-            CanDelete = $true
-            Ensure = "Present"
-            IsEnabled = $true
-            PIDataArchive = $Node.NodeName
+            CanDelete        = $true
+            Ensure           = "Present"
+            IsEnabled        = $true
+            PIDataArchive    = $Node.NodeName
         }
 
-        PITrust xPITrust_SetIntegration
-        {
-            Name = $Node.Name
+        PITrust xPITrust_SetIntegration {
+            Name            = $Node.Name
             ApplicationName = $ApplicationName
-            Description = $Description
-            Enabled = $Enabled
-            Ensure = "Present"
-            Identity = $Node.Name
-            IPAddress = $IPAddress
-            NetMask = $NetMask
-            NetworkPath = $NetworkPath
-            PIDataArchive = $Node.NodeName
-            WindowsAccount = $WindowsAccount
-            WindowsDomain = $WindowsDomain
-            DependsOn = "[PIIdentity]$($Node.Name)"
+            Description     = $Description
+            Enabled         = $Enabled
+            Ensure          = "Present"
+            Identity        = $Node.Name
+            IPAddress       = $IPAddress
+            NetMask         = $NetMask
+            NetworkPath     = $NetworkPath
+            PIDataArchive   = $Node.NodeName
+            WindowsAccount  = $WindowsAccount
+            WindowsDomain   = $WindowsDomain
+            DependsOn       = "[PIIdentity]$($Node.Name)"
         }
     }
 }
@@ -57,14 +55,13 @@ Configuration xPITrust_Set
 Configuration xPITrust_Remove
 {
     param()
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        PITrust xPITrust_RemoveIntegration
-        {
-            Name = $Node.Name
-            Ensure = "Absent"
+        PITrust xPITrust_RemoveIntegration {
+            Name          = $Node.Name
+            Ensure        = "Absent"
             PIDataArchive = $Node.NodeName
         }
     }
@@ -73,14 +70,13 @@ Configuration xPITrust_Remove
 Configuration xPITrust_CleanUp
 {
     param()
-    Import-DscResource -ModuleName PISecurityDSC 
- 
+    Import-DscResource -ModuleName PISecurityDSC
+
     Node localhost
     {
-        PIIdentity $Node.Name
-        {
-            Name = $Node.Name
-            Ensure = "Present"
+        PIIdentity $Node.Name {
+            Name          = $Node.Name
+            Ensure        = "Present"
             PIDataArchive = $Node.NodeName
         }
     }

@@ -10,8 +10,7 @@ Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -P
 
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResources' -ChildPath 'CommonResourceHelper.psm1')) -Force
 
-function Invoke-TestSetup
-{
+function Invoke-TestSetup {
     $loaded = [System.Reflection.Assembly]::LoadWithPartialName("OSIsoft.AFSDK")
     if ($null -eq $loaded) {
         $ErrorActionPreference = 'Stop'
@@ -19,16 +18,14 @@ function Invoke-TestSetup
     }
 }
 
-function Invoke-TestCleanup
-{
+function Invoke-TestCleanup {
 
 }
 
 #endregion HEADER
 
 # Begin Testing
-try
-{
+try {
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
@@ -46,7 +43,7 @@ try
 
             Context 'When a resource object is received' {
                 $PIResource = @{
-                    Name = "test"
+                    Name      = "test"
                     Property1 = 1
                 }
 
@@ -102,14 +99,14 @@ try
             Context 'When matching resources are received' {
 
                 $Current = @{
-                    Ensure = "Present"
+                    Ensure    = "Present"
                     Property1 = 1
                     Property2 = "2"
                     Property3 = ""
                     Property4 = "test"
                 }
                 $Desired = @{
-                    Ensure = "Present"
+                    Ensure    = "Present"
                     Property1 = 1
                     Property2 = "2"
                     Property3 = ""
@@ -122,15 +119,15 @@ try
             }
 
             $Current = @{
-                    Ensure = "Present"
-                    Property1 = 1
-                    Property2 = $null
-                }
+                Ensure    = "Present"
+                Property1 = 1
+                Property2 = $null
+            }
 
             Context 'When the desired resource has additional properties' {
 
                 $Desired = @{
-                    Ensure = "Present"
+                    Ensure    = "Present"
                     Property1 = 1
                     Property2 = "2"
                 }
@@ -144,7 +141,7 @@ try
             Context 'When non-matching Ensure resources are received' {
 
                 $Desired = @{
-                    Ensure = "Absent"
+                    Ensure    = "Absent"
                     Property1 = 1
                 }
 
@@ -157,7 +154,7 @@ try
             Context 'When non-matching property resources are received' {
 
                 $Desired = @{
-                    Ensure = "Present"
+                    Ensure    = "Present"
                     Property1 = 2
                 }
 
@@ -232,8 +229,7 @@ try
                         P3 = "6"
                     }
                     $result = Set-PIResourceSavedParameterSet -pt $ParameterTable -sp $SpecifiedParameters -cp $CurrentParameters
-                    foreach($value in $result.GetEnumerator())
-                    {
+                    foreach ($value in $result.GetEnumerator()) {
                         $result[$value.Key] | Should -Be $ExpectedResult[$value.Key]
                     }
                 }
@@ -241,7 +237,6 @@ try
         }
     }
 }
-finally
-{
+finally {
     Invoke-TestCleanup
 }
