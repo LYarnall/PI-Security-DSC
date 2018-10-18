@@ -25,7 +25,8 @@ Data Archive.
 .DESCRIPTION
 
 While some validation checks are more involved, there are many which can be
-corrected with a simple there are many checks which cover
+described with precise values for resources.  This configuration attempts
+to capture all such resources and their ideal values to achieve compliance.
 
 .EXAMPLE
 .\PIDataArchive_AuditBaseline -NodeName "myPI" -DaysToAllowEdit 60 -MaxQueryExecutionSeconds 300 -AutoTrustConfig 0 -PIFirewallHostmasks @('10.10.*.*','10.1.*.*') -AuthenticationPolicy 51
