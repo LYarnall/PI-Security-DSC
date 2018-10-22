@@ -5,10 +5,6 @@ Configuration AddPITagAccessControlExample
     # For use below in the multi-tag example.
     Import-Module OSIsoft.PowerShell
     $connection = Connect-PIDataArchive localhost
-    # Any WhereClause accepted by Get-PIPoint can be used.
-    #     Examples: "description:=*InternalCompanyUse*"
-    #               "pointsource:=OPC"
-    #               "pointsource:=OPC location1:=1"
     $tags = Get-PIPoint -Connection $connection -WhereClause "description:=*InternalCompanyUse*"
     $suffix = "_datasecurity"
 
